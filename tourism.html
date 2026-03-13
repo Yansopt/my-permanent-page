@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旅游服务 - 芷溪</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- GSAP 动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Three.js 3D效果 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        /* 自定义样式 */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --color-primary: #C41E3A; /* 朱红 */
+            --color-secondary: #2D4356; /* 黛青 */
+            --color-tertiary: #F5F5DC; /* 米白 */
+            --color-accent: #DAA520; /* 金黄 */
+            --color-dark: #2F4F4F; /* 墨绿 */
+            --color-light: #F5F5F5; /* 浅灰 */
+        }
+        
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background-color: var(--color-tertiary);
+            color: var(--color-dark);
+        }
+        
+        .bg-primary { background-color: var(--color-primary); }
+        .bg-secondary { background-color: var(--color-secondary); }
+        .bg-tertiary { background-color: var(--color-tertiary); }
+        .bg-accent { background-color: var(--color-accent); }
+        .bg-dark { background-color: var(--color-dark); }
+        .bg-light { background-color: var(--color-light); }
+        
+        .text-primary { color: var(--color-primary); }
+        .text-secondary { color: var(--color-secondary); }
+        .text-tertiary { color: var(--color-tertiary); }
+        .text-accent { color: var(--color-accent); }
+        .text-dark { color: var(--color-dark); }
+        .text-light { color: var(--color-light); }
+        
+        .border-primary { border-color: var(--color-primary); }
+        .border-secondary { border-color: var(--color-secondary); }
+        .border-accent { border-color: var(--color-accent); }
+        
+        /* 古厝开门动画 */
+        .door-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--color-secondary);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .door {
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            background-color: var(--color-primary);
+            transition: transform 2s ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .door-left {
+            left: 0;
+            transform-origin: left center;
+            border-right: 2px solid var(--color-accent);
+        }
+        
+        .door-right {
+            right: 0;
+            transform-origin: right center;
+            border-left: 2px solid var(--color-accent);
+        }
+        
+        .door-handle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--color-accent);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .door-left .door-handle {
+            right: 20px;
+        }
+        
+        .door-right .door-handle {
+            left: 20px;
+        }
+        
+        .door-opened .door-left {
+            transform: rotateY(-90deg);
+        }
+        
+        .door-opened .door-right {
+            transform: rotateY(90deg);
+        }
+        
+        .door-content {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 1s ease-in-out 1s;
+        }
+        
+        .door-opened .door-content {
+            opacity: 1;
+        }
+        
+        /* 导航菜单样式 */
+        .nav-menu {
+            background-color: var(--color-secondary);
+            color: white;
+            padding: 10px 0;
+        }
+        
+        .nav-menu ul {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .nav-menu li {
+            position: relative;
+        }
+        
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: block;
+            transition: background-color 0.3s ease;
+        }
+        
+        .nav-menu a:hover {
+            background-color: var(--color-primary);
+        }
+        
+        .nav-menu .submenu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: var(--color-secondary);
+            min-width: 200px;
+            display: none;
+            z-index: 100;
+        }
+        
+        .nav-menu li:hover .submenu {
+            display: block;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .card-body {
+            padding: 15px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--color-secondary);
+        }
+        
+        .card-text {
+            font-size: 14px;
+            color: var(--color-dark);
+            margin-bottom: 15px;
+        }
+        
+        .card-link {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: var(--color-primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .card-link:hover {
+            background-color: #a01932;
+        }
+        
+        /* 窗棂装饰元素 */
+        .window-lattice {
+            position: relative;
+        }
+        
+        .window-lattice::before,
+        .window-lattice::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 20px;
+            background-image: url('https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/9dc38b0d8cbb4261a00faa4e097879cc~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260212123004B7B3FD7F2383C835BCE9&rrcfp=f06b921b&x-expires=1773462667&x-signature=RqfOErcI9e0OCTWadDi%2BFTKM8%2FM%3D');
+            background-repeat: repeat-x;
+            background-size: contain;
+        }
+        
+        .window-lattice::before {
+            top: 0;
+            transform: rotate(180deg);
+        }
+        
+        .window-lattice::after {
+            bottom: 0;
+        }
+        
+        /* 风火墙装饰元素 */
+        .fire-wall {
+            position: relative;
+            padding-top: 50px;
+        }
+        
+        .fire-wall::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 50px;
+            background-image: url('https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/abc5c4852c8242dd82a1e275e9040820~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260212123004B7B3FD7F2383C835BCE9&rrcfp=f06b921b&x-expires=1773462667&x-signature=KGR3aUp44rGnJOC1MdjLhMKfLJE%3D');
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+        
+        /* 地图容器样式 */
+        .map-container {
+            height: 500px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 美食卡片样式 */
+        .food-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .food-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .food-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        
+        .food-body {
+            padding: 15px;
+        }
+        
+        .food-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--color-secondary);
+        }
+        
+        .food-desc {
+            font-size: 14px;
+            color: var(--color-dark);
+            margin-bottom: 10px;
+        }
+        
+        .food-price {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+        
+        /* 打卡点卡片样式 */
+        .checkpoint-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .checkpoint-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .checkpoint-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .checkpoint-body {
+            padding: 15px;
+        }
+        
+        .checkpoint-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--color-secondary);
+        }
+        
+        .checkpoint-desc {
+            font-size: 14px;
+            color: var(--color-dark);
+            margin-bottom: 15px;
+        }
+        
+        .checkpoint-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--color-dark);
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .nav-menu ul {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .nav-menu .submenu {
+                position: static;
+                display: none;
+            }
+            
+            .nav-menu li:hover .submenu {
+                display: block;
+            }
+            
+            .map-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 古厝开门加载动画 -->
+    <div class="door-animation" id="doorAnimation">
+        <div class="door door-left">
+            <div class="door-handle"></div>
+        </div>
+        <div class="door door-right">
+            <div class="door-handle"></div>
+        </div>
+        <div class="door-content">
+            <img src="https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260312_1773327607.png" alt="芷溪" class="w-full h-full object-cover">
+        </div>
+    </div>
+
+    <!-- 顶部导航栏 -->
+    <header class="bg-secondary text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center">
+                <h1 class="text-2xl font-bold">芷溪</h1>
+            </div>
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="index.html" class="hover:text-accent transition-colors">首页</a>
+            </div>
+            <button class="md:hidden text-2xl" id="mobileMenuButton">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <!-- 移动端菜单 -->
+        <div class="md:hidden hidden bg-secondary" id="mobileMenu">
+                <div class="container mx-auto px-4 py-2 flex flex-col space-y-2">
+                    <a href="index.html" class="block py-2 hover:text-accent transition-colors">首页</a>
+                    <a href="history.html" class="block py-2 hover:text-accent transition-colors">历史文化</a>
+                    <a href="architecture.html#architecture-gallery" class="block py-2 hover:text-accent transition-colors">古建宗祠</a>
+                    <a href="intangible.html" class="block py-2 hover:text-accent transition-colors">非遗传承</a>
+                    <a href="tourism.html" class="block py-2 hover:text-accent transition-colors">旅游服务</a>
+                    <a href="#about" class="block py-2 hover:text-accent transition-colors">关于我们</a>
+                    <a href="#contact" class="block py-2 hover:text-accent transition-colors">联系方式</a>
+                    <button class="bg-primary hover:bg-opacity-80 text-white px-4 py-2 rounded-md transition-colors w-full">
+                        <i class="fas fa-ticket-alt mr-1"></i> 门票预订
+                    </button>
+                </div>
+            </div>
+    </header>
+
+    <!-- 五大板块导航 -->
+    <nav class="nav-menu sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4">
+            <ul>
+                <li>
+                    <a href="index.html"><i class="fas fa-home mr-1"></i> 首页</a>
+                </li>
+                <li>
+                    <a href="history.html"><i class="fas fa-history mr-1"></i> 历史文化</a>
+                    <ul class="submenu">
+                        <li><a href="history.html#timeline">历史沿革</a></li>
+                        <li><a href="history.html#person-database">名人风采</a></li>
+                        <li><a href="history.html#family-culture">客家文化</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="architecture.html#architecture-gallery"><i class="fas fa-building mr-1"></i> 古建宗祠</a>
+                    <ul class="submenu">
+                        <li><a href="architecture.html#panorama">3D全景漫游</a></li>
+                        <li><a href="architecture.html#architecture-gallery">宗祠图鉴</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="intangible.html"><i class="fas fa-mask mr-1"></i> 非遗传承</a>
+                    <ul class="submenu">
+                        <li><a href="intangible.html#intangible-database">非遗项目库</a></li>
+                        <li><a href="intangible.html#video-section">视频专区</a></li>
+                        <li><a href="intangible.html#cultural-creative">文创推荐</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="tourism.html"><i class="fas fa-map-marked-alt mr-1"></i> 旅游服务</a>
+                    <ul class="submenu">
+                        <li><a href="tourism.html#map-navigation">地图导航</a></li>
+                        <li><a href="tourism.html#popular-checkpoints">热门打卡点</a></li>
+                        <li><a href="tourism.html#food-recommendations">美食推荐</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 旅游服务标题 -->
+    <section class="py-12 bg-secondary text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-4 fire-wall">旅游服务</h2>
+            <p class="text-lg mb-6">为您提供全方位的旅游服务，让您的芷溪古村之旅更加便捷、舒适</p>
+        </div>
+    </section>
+
+    <!-- 地图导航 -->
+    <section id="map-navigation" class="py-12 window-lattice">
+        <div class="container mx-auto px-4 py-8">
+            <h2 class="text-2xl font-bold mb-6 text-center text-secondary fire-wall">地图导航</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <div class="map-container bg-white">
+                        <!-- 地图容器 -->
+                        <div id="map" class="w-full h-full">
+                            <iframe src="https://map.baidu.com/search/%E8%8A%B7%E6%BA%AA%E6%9D%91/@12985912.045,2897178.04,19z?querytype=s&da_src=shareurl&wd=%E8%8A%B7%E6%BA%AA%E6%9D%91&c=193&src=0&wd2=%E9%BE%99%E5%B2%A9%E5%B8%82%E8%BF%9E%E5%9F%8E%E5%8E%BF&pn=0&sug=1&l=13&b=(12898018,2857216;12959202,2887552)&from=webmap&biz_forward=%7B%22scaler%22:1,%22styles%22:%22pl%22%7D&sug_forward=637df60acc4a9a7240afe639&device_ratio=1" width="100%" height="100%" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="text-xl font-bold mb-4 text-secondary"><i class="fas fa-map-marked-alt mr-2 text-primary"></i> 导航信息</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="font-bold mb-2">开放时间</h4>
+                                <p class="text-gray-600">全天开放（全年无休）</p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold mb-2">门票信息</h4>
+                                <p class="text-gray-600">免费开放，部分宗祠需单独购票</p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold mb-2">交通指南</h4>
+                                <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                                    <li>自驾：导航至"芷溪古村"，村内有停车场</li>
+                                    <li>公交：乘坐连城至芷溪的班车，在芷溪村站下车</li>
+                                    <li>出租车：直接定位"芷溪古村"即可</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-bold mb-2">游览建议</h4>
+                                <p class="text-gray-600">建议游览时间：4-5小时</p>
+                                <p class="text-gray-600">最佳游览季节：春季、秋季</p>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <button class="w-full bg-primary hover:bg-opacity-80 text-white px-6 py-3 rounded-md transition-colors" onclick="openMap()">
+                                <i class="fas fa-map mr-2"></i> 查看详细地图
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 热门打卡点 -->
+    <section id="popular-checkpoints" class="py-12 bg-light">
+        <div class="container mx-auto px-4">
+            <h2 class="text-2xl font-bold mb-6 text-center text-secondary fire-wall">热门打卡点</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 黄氏家庙 -->
+                <div class="checkpoint-card">
+                    <img src="https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260312_1773329336.png" alt="黄氏家庙" class="checkpoint-img">
+                    <div class="checkpoint-body">
+                        <h3 class="checkpoint-title">黄氏家庙</h3>
+                        <p class="checkpoint-desc">黄氏家庙是芷溪最大的宗祠之一，建于清代，建筑规模宏大，工艺精湛，体现了客家宗祠建筑的典型特征。</p>
+                        <div class="checkpoint-info">
+                            <span><i class="fas fa-map-marker-alt mr-1 text-primary"></i> 芷溪村中心</span>
+                            <span><i class="fas fa-star mr-1 text-accent"></i> 5.0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 杨氏宗祠 -->
+                <div class="checkpoint-card">
+                    <img src="https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260312_1773329483.jpg" alt="杨氏宗祠" class="checkpoint-img">
+                    <div class="checkpoint-body">
+                        <h3 class="checkpoint-title">杨氏宗祠</h3>
+                        <p class="checkpoint-desc">杨氏宗祠是芷溪重要的宗祠之一，建于清代，建筑风格独特，装饰精美，展现了客家宗祠建筑的艺术魅力。</p>
+                        <div class="checkpoint-info">
+                            <span><i class="fas fa-map-marker-alt mr-1 text-primary"></i> 芷溪村东部</span>
+                            <span><i class="fas fa-star mr-1 text-accent"></i> 4.8</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 芷溪古街 -->
+                <div class="checkpoint-card">
+                    <img src="https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260312_1773329586.jpg" alt="芷溪古街" class="checkpoint-img">
+                    <div class="checkpoint-body">
+                        <h3 class="checkpoint-title">芷溪古街</h3>
+                        <p class="checkpoint-desc">芷溪古街是古村的核心区域，保存着大量明清时期的客家民居建筑，街道两旁店铺林立，古建筑鳞次栉比。</p>
+                        <div class="checkpoint-info">
+                            <span><i class="fas fa-map-marker-alt mr-1 text-primary"></i> 芷溪村中心</span>
+                            <span><i class="fas fa-star mr-1 text-accent"></i> 4.9</span>
+                        </div>
+                    </div>
+                </div>
+                
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 美食推荐 -->
+    <section id="food-recommendations" class="py-12">
+        <div class="container mx-auto px-4">
+            <h2 class="text-2xl font-bold mb-6 text-center text-secondary fire-wall">美食推荐</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- 客家酿豆腐 -->
+                <div class="food-card">
+                    <img src="https://p1.ssl.qhimg.com/t01654629fadf901d25.jpg" alt="客家酿豆腐" class="food-img">
+                    <div class="food-body">
+                        <h3 class="food-title">客家酿豆腐</h3>
+                        <p class="food-desc">客家酿豆腐是客家传统名菜，以豆腐和猪肉为原料，口感丰富，味道鲜美。</p>
+                        <div class="flex justify-between items-center">
+                            <span class="food-price">¥35/份</span>
+                            <button class="bg-primary hover:bg-opacity-80 text-white px-3 py-1 rounded-md transition-colors text-sm" onclick="showFoodShop('tofu')">
+                                推荐店铺
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 客家梅菜扣肉 -->
+                <div class="food-card">
+                    <img src="https://pic1.zhimg.com/70/v2-46486a8fc23ab76762e45a4db09c5d09_1440w.avis?source=172ae18b&biz_tag=Post" alt="客家梅菜扣肉" class="food-img">
+                    <div class="food-body">
+                        <h3 class="food-title">客家梅菜扣肉</h3>
+                        <p class="food-desc">客家梅菜扣肉是客家传统名菜，以五花肉和梅菜为原料，肥而不腻，味道香浓。</p>
+                        <div class="flex justify-between items-center">
+                            <span class="food-price">¥45/份</span>
+                            <button class="bg-primary hover:bg-opacity-80 text-white px-3 py-1 rounded-md transition-colors text-sm" onclick="showFoodShop('pork')">
+                                推荐店铺
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 客家擂茶 -->
+                <div class="food-card">
+                    <img src="https://so1.360tres.com/t015867c38bd7405d05.jpg" alt="客家擂茶" class="food-img">
+                    <div class="food-body">
+                        <h3 class="food-title">客家擂茶</h3>
+                        <p class="food-desc">客家擂茶是客家传统饮品，以茶叶、花生、芝麻等为原料，口感独特，营养丰富。</p>
+                        <div class="flex justify-between items-center">
+                            <span class="food-price">¥15/碗</span>
+                            <button class="bg-primary hover:bg-opacity-80 text-white px-3 py-1 rounded-md transition-colors text-sm" onclick="showFoodShop('tea')">
+                                推荐店铺
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 客家盐焗鸡 -->
+                <div class="food-card">
+                    <img src="https://img1.qunarzz.com/travel/d7/1608/2f/e88a3370ca78eb5.jpg_r_1360x1360x95_883bd313.jpg" alt="客家盐焗鸡" class="food-img">
+                    <div class="food-body">
+                        <h3 class="food-title">客家盐焗鸡</h3>
+                        <p class="food-desc">客家盐焗鸡是客家传统名菜，以鸡肉为原料，用盐焗制而成，皮脆肉嫩，味道鲜美。</p>
+                        <div class="flex justify-between items-center">
+                            <span class="food-price">¥68/只</span>
+                            <button class="bg-primary hover:bg-opacity-80 text-white px-3 py-1 rounded-md transition-colors text-sm" onclick="showFoodShop('chicken')">
+                                推荐店铺
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 旅游服务信息 -->
+    <section class="py-12 bg-secondary text-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-2xl font-bold mb-6 text-center fire-wall">旅游服务信息</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                
+                <!-- 开放时间 -->
+                <div class="bg-dark bg-opacity-50 p-6 rounded-lg">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-clock text-3xl text-accent mb-2"></i>
+                        <h3 class="text-xl font-bold">开放时间</h3>
+                    </div>
+                    <ul class="space-y-2">
+                        <li><i class="fas fa-sun text-accent mr-2"></i> 古村开放时间：全天开放</li>
+                        <li><i class="fas fa-moon text-accent mr-2"></i> 夜景开放时间：18:00-21:00</li>
+                        <li><i class="fas fa-building text-accent mr-2"></i> 宗祠开放时间：9:00-17:00</li>
+                        <li><i class="fas fa-calendar-alt text-accent mr-2"></i> 全年开放，无闭馆日</li>
+                    </ul>
+                </div>
+                
+                <!-- 交通指南 -->
+                <div class="bg-dark bg-opacity-50 p-6 rounded-lg">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-bus text-3xl text-accent mb-2"></i>
+                        <h3 class="text-xl font-bold">交通指南</h3>
+                    </div>
+                    <ul class="space-y-2">
+                        <li><i class="fas fa-bus text-accent mr-2"></i> 公交：连城至芷溪班车</li>
+                        <li><i class="fas fa-taxi text-accent mr-2"></i> 出租车：直接定位"芷溪古村"
+                        <li><i class="fas fa-car text-accent mr-2"></i> 自驾：导航至"芷溪古村"，村内有停车场</li>
+                    </ul>
+                </div>
+                
+                <!-- 服务设施 -->
+                <div class="bg-dark bg-opacity-50 p-6 rounded-lg">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-concierge-bell text-3xl text-accent mb-2"></i>
+                        <h3 class="text-xl font-bold">服务设施</h3>
+                    </div>
+                    <ul class="space-y-2">
+                        <li><i class="fas fa-restroom text-accent mr-2"></i> 公共厕所：多处设有</li>
+                        <li><i class="fas fa-water text-accent mr-2"></i> 饮水设施：多处设有</li>
+                        <li><i class="fas fa-shopping-bag text-accent mr-2"></i> 购物商店：多家文创店</li>
+                        <li><i class="fas fa-utensils text-accent mr-2"></i> 餐饮服务：多家客家特色餐厅</li>
+                        <li><i class="fas fa-bed text-accent mr-2"></i> 住宿服务：多家民宿</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-center gap-8 w-full max-w-2xl mx-auto">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">芷溪</h3>
+                    <p class="mb-4">千年客家古村，中国历史文化名村</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-white hover:text-accent transition-colors">
+                            <i class="fab fa-weixin text-2xl"></i>
+                        </a>
+                        <a href="#" class="text-white hover:text-accent transition-colors">
+                            <i class="fab fa-weibo text-2xl"></i>
+                        </a>
+                        <a href="#" class="text-white hover:text-accent transition-colors">
+                            <i class="fab fa-tiktok text-2xl"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="hover:text-accent transition-colors">首页</a></li>
+                        <li><a href="history.html" class="hover:text-accent transition-colors">历史文化</a></li>
+                        <li><a href="architecture.html#architecture-gallery" class="hover:text-accent transition-colors">古建宗祠</a></li>
+                        <li><a href="intangible.html" class="hover:text-accent transition-colors">非遗传承</a></li>
+                        <li><a href="tourism.html" class="hover:text-accent transition-colors">旅游服务</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 地图模态框 -->
+    <div id="mapModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-2xl font-bold text-secondary">芷溪古村详细地图</h3>
+                    <button class="text-gray-500 hover:text-gray-700 text-2xl" onclick="closeMap()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="w-full h-96 bg-gray-100 rounded-lg overflow-hidden">
+                    <div class="w-full h-full flex items-center justify-center">
+                        <div class="text-center">
+                            <i class="fas fa-map-marked-alt text-5xl text-gray-400 mb-4"></i>
+                            <p class="text-gray-600">芷溪古村详细地图</p>
+                            <p class="text-gray-500 mt-2">您可以保存此地图或使用导航软件查看</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button class="bg-primary hover:bg-opacity-80 text-white px-6 py-2 rounded transition-colors" onclick="closeMap()">
+                        关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 古厝开门动画
+        window.addEventListener('DOMContentLoaded', function() {
+            try {
+                const doorAnimation = document.getElementById('doorAnimation');
+                if (doorAnimation) {
+                    setTimeout(function() {
+                        doorAnimation.classList.add('door-opened');
+                        setTimeout(function() {
+                            doorAnimation.style.display = 'none';
+                        }, 3000);
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error('开门动画错误:', error);
+                // 即使出错也确保动画元素被隐藏
+                const doorAnimation = document.getElementById('doorAnimation');
+                if (doorAnimation) {
+                    doorAnimation.style.display = 'none';
+                }
+            }
+        });
+        
+        // 确保动画元素在页面加载后一段时间内被隐藏
+        setTimeout(function() {
+            const doorAnimation = document.getElementById('doorAnimation');
+            if (doorAnimation) {
+                doorAnimation.style.display = 'none';
+            }
+        }, 5000);
+
+        // 移动端菜单
+        document.getElementById('mobileMenuButton').addEventListener('click', function() {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        });
+
+        // 导航菜单交互
+        const navItems = document.querySelectorAll('.nav-menu > div > ul > li');
+        navItems.forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                const submenu = item.querySelector('.submenu');
+                if (submenu) {
+                    submenu.style.display = 'block';
+                }
+            });
+            item.addEventListener('mouseleave', () => {
+                const submenu = item.querySelector('.submenu');
+                if (submenu) {
+                    submenu.style.display = 'none';
+                }
+            });
+        });
+
+        // 地图功能 - 跳转到百度地图
+        function openMap() {
+            window.open('https://map.baidu.com/search/%E8%8A%B7%E6%BA%AA%E6%9D%91/@12985912.045,2897178.04,19z?querytype=s&da_src=shareurl&wd=%E8%8A%B7%E6%BA%AA%E6%9D%91&c=193&src=0&wd2=%E9%BE%99%E5%B2%A9%E5%B8%82%E8%BF%9E%E5%9F%8E%E5%8E%BF&pn=0&sug=1&l=13&b=(12898018,2857216;12959202,2887552)&from=webmap&biz_forward=%7B%22scaler%22:1,%22styles%22:%22pl%22%7D&sug_forward=637df60acc4a9a7240afe639&device_ratio=1', '_blank');
+        }
+
+        // 美食店铺推荐功能
+        function showFoodShop(foodType) {
+            let shops = [];
+            
+            switch(foodType) {
+                case 'tofu':
+                    shops = [
+                        { name: '客家酿豆腐老店', address: '芷溪古街12号', rating: 4.8 },
+                        { name: '福兴餐馆', address: '芷溪村中心街', rating: 4.7 },
+                        { name: '老客家菜馆', address: '芷溪古街25号', rating: 4.9 }
+                    ];
+                    break;
+                case 'pork':
+                    shops = [
+                        { name: '梅菜扣肉馆', address: '芷溪古街8号', rating: 4.9 },
+                        { name: '福兴餐馆', address: '芷溪村中心街', rating: 4.7 },
+                        { name: '老客家菜馆', address: '芷溪古街25号', rating: 4.6 }
+                    ];
+                    break;
+                case 'tea':
+                    shops = [
+                        { name: '客家擂茶馆', address: '芷溪古街15号', rating: 4.8 },
+                        { name: '福兴餐馆', address: '芷溪村中心街', rating: 4.7 },
+                        { name: '老客家茶馆', address: '芷溪古街30号', rating: 4.5 }
+                    ];
+                    break;
+                case 'chicken':
+                    shops = [
+                        { name: '盐焗鸡专卖店', address: '芷溪古街20号', rating: 4.7 },
+                        { name: '福兴餐馆', address: '芷溪村中心街', rating: 4.6 },
+                        { name: '老客家菜馆', address: '芷溪古街25号', rating: 4.5 }
+                    ];
+                    break;
+            }
+            
+            let shopList = shops.map(shop => `${shop.name} (${shop.address}) - 评分: ${shop.rating}`).join('\n');
+            alert('推荐店铺:\n' + shopList);
+        }
+
+        // 滚动动画
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('section:not(.animated)');
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                if (elementTop < windowHeight * 0.8) {
+                    gsap.from(element, { y: 50, opacity: 0, duration: 1 });
+                    element.classList.add('animated');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', animateOnScroll);
+        animateOnScroll(); // 初始检查
+    </script>
+</body>
+</html>

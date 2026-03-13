@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>芷溪花灯 · 国家级非遗客家灯彩传奇</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- GSAP 动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        /* 自定义样式 */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --color-primary: #C41E3A; /* 朱红 */
+            --color-secondary: #2D4356; /* 黛青 */
+            --color-tertiary: #F5F5DC; /* 米白 */
+            --color-accent: #DAA520; /* 金黄 */
+            --color-dark: #2F4F4F; /* 墨绿 */
+            --color-light: #F5F5F5; /* 浅灰 */
+        }
+        
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background-color: var(--color-tertiary);
+            color: var(--color-dark);
+        }
+        
+        .bg-primary { background-color: var(--color-primary); }
+        .bg-secondary { background-color: var(--color-secondary); }
+        .bg-tertiary { background-color: var(--color-tertiary); }
+        .bg-accent { background-color: var(--color-accent); }
+        .bg-dark { background-color: var(--color-dark); }
+        .bg-light { background-color: var(--color-light); }
+        
+        .text-primary { color: var(--color-primary); }
+        .text-secondary { color: var(--color-secondary); }
+        .text-tertiary { color: var(--color-tertiary); }
+        .text-accent { color: var(--color-accent); }
+        .text-dark { color: var(--color-dark); }
+        .text-light { color: var(--color-light); }
+        
+        .border-primary { border-color: var(--color-primary); }
+        .border-secondary { border-color: var(--color-secondary); }
+        .border-accent { border-color: var(--color-accent); }
+        
+        /* 导航菜单样式 */
+        .nav-menu {
+            background-color: var(--color-secondary);
+            color: white;
+            padding: 10px 0;
+        }
+        
+        .nav-menu ul {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .nav-menu li {
+            position: relative;
+        }
+        
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: block;
+            transition: background-color 0.3s ease;
+        }
+        
+        .nav-menu a:hover, .nav-menu a.active {
+            background-color: var(--color-primary);
+        }
+        
+        .nav-menu .submenu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: var(--color-secondary);
+            min-width: 200px;
+            display: none;
+            z-index: 100;
+        }
+        
+        .nav-menu li:hover .submenu {
+            display: block;
+        }
+        
+        /* 窗棂装饰元素 */
+        .window-lattice {
+            position: relative;
+        }
+        
+        .window-lattice::before,
+        .window-lattice::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 20px;
+            background-image: url('https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/9dc38b0d8cbb4261a00faa4e097879cc~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260212123004B7B3FD7F2383C835BCE9&rrcfp=f06b921b&x-expires=1773462667&x-signature=RqfOErcI9e0OCTWadDi%2BFTKM8%2FM%3D');
+            background-repeat: repeat-x;
+            background-size: contain;
+        }
+        
+        .window-lattice::before {
+            top: 0;
+            transform: rotate(180deg);
+        }
+        
+        .window-lattice::after {
+            bottom: 0;
+        }
+        
+        /* 风火墙装饰元素 */
+        .fire-wall {
+            position: relative;
+            padding-top: 50px;
+        }
+        
+        .fire-wall::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 50px;
+            background-image: url('https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/abc5c4852c8242dd82a1e275e9040820~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260212123004B7B3FD7F2383C835BCE9&rrcfp=f06b921b&x-expires=1773462667&x-signature=KGR3aUp44rGnJOC1MdjLhMKfLJE%3D');
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .nav-menu ul {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .nav-menu .submenu {
+                position: static;
+                display: none;
+            }
+            
+            .nav-menu li:hover .submenu {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="bg-secondary text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center">
+                <h1 class="text-2xl font-bold">芷溪</h1>
+            </div>
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="index.html" class="hover:text-accent transition-colors">首页</a>
+            </div>
+            <button class="md:hidden text-2xl" id="mobileMenuButton">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <!-- 移动端菜单 -->
+        <div class="md:hidden hidden bg-secondary" id="mobileMenu">
+            <div class="container mx-auto px-4 py-2 flex flex-col space-y-2">
+                <a href="index.html" class="block py-2 hover:text-accent transition-colors">首页</a>
+                <a href="#" class="block py-2 hover:text-accent transition-colors">关于我们</a>
+                <a href="tourism.html" class="block py-2 hover:text-accent transition-colors">旅游服务</a>
+                <button class="bg-primary hover:bg-opacity-80 text-white px-4 py-2 rounded-md transition-colors w-full">
+                    <i class="fas fa-ticket-alt mr-1"></i> 门票预订
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 五大板块导航 -->
+    <nav class="nav-menu sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4">
+            <ul>
+                <li>
+                    <a href="index.html"><i class="fas fa-home mr-1"></i> 首页</a>
+                </li>
+                <li>
+                    <a href="history.html"><i class="fas fa-history mr-1"></i> 历史脉络</a>
+                    <ul class="submenu">
+                        <li><a href="history.html#timeline">朝代时间轴</a></li>
+                        <li><a href="history.html#person-database">名人数据库</a></li>
+                        <li><a href="history.html#family-culture">家风文化专栏</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="architecture.html#architecture-gallery"><i class="fas fa-building mr-1"></i> 古建宗祠</a>
+                    <ul class="submenu">
+                        <li><a href="architecture.html#panorama">3D全景漫游</a></li>
+                        <li><a href="architecture.html#architecture-gallery">宗祠图鉴</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="intangible.html" class="active"><i class="fas fa-mask mr-1"></i> 非遗传承</a>
+                    <ul class="submenu">
+                        <li><a href="#background">历史背景</a></li>
+                        <li><a href="#production">制作过程</a></li>
+                        <li><a href="#folk-custom">民俗活动</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="tourism.html"><i class="fas fa-map-marked-alt mr-1"></i> 旅游服务</a>
+                    <ul class="submenu">
+                        <li><a href="tourism.html#map-navigation">地图导航</a></li>
+                        <li><a href="tourism.html#popular-checkpoints">热门打卡点</a></li>
+                        <li><a href="tourism.html#food-recommendations">美食推荐</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 页面标题 -->
+    <section class="bg-secondary text-white py-12">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl font-bold mb-4">芷溪花灯 · 国家级非遗客家灯彩传奇</h1>
+            <p class="text-xl">探索三百年客家文化瑰宝，感受"纸包火的奇迹"</p>
+        </div>
+    </section>
+
+    <!-- 背景部分 -->
+    <section id="background" class="py-12 window-lattice">
+        <div class="container mx-auto px-4 py-8">
+            <h2 class="text-2xl font-bold mb-6 text-center text-secondary fire-wall">历史背景</h2>
+            <div class="grid grid-cols-1 gap-8">
+                <div>
+                    <img src="https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260313_1773358306.png" alt="芷溪花灯" class="w-full h-[800px] object-contain rounded-lg shadow-md cursor-pointer" onclick="openImageModal('https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260313_1773358306.png')">
+                </div>
+                <div class="text-center">
+                    <p class="mb-4 text-lg leading-relaxed" style="text-indent: 2em;">芷溪花灯是深藏于福建省连城县芷溪古村的三百年客家文化瑰宝，以惊世绝伦的"纸包火的奇迹"享誉四方，于2008年被正式列入国家级非物质文化遗产名录。</p>
+                    <p class="mb-4 text-lg leading-relaxed" style="text-indent: 2em;">它汲取江南苏灯雅致精巧之灵气，融入客家耕读传家、敬祖睦邻的文化底蕴，集传统手工艺、民俗礼仪、宗族信仰于一身，既是闽西山川间流光溢彩的文化坐标，更是中华灯彩艺术中独树一帜、活态传承的文化经典。</p>
+                    <p class="text-lg leading-relaxed" style="text-indent: 2em;">芷溪花灯的文脉，可追溯至清代康熙年间。相传由当地在苏州为官的乡贤杨燕山引入，完整承袭了古苏灯精致考究、形制典雅的精髓，跨越千里，扎根于客家古村。在数百年的岁月沉淀中，花灯历经本土化改良与创新，从最初厅堂之中的悬灯雅赏，逐步演变为规模宏大、礼仪完备的巡游闹灯习俗。三百年薪火不绝，文脉绵延不息，从一盏灯到一种民俗，从一种技艺到一方人的精神寄托，芷溪花灯早已成为刻入客家血脉的文化根魂。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 制作过程部分 -->
+    <section id="production" class="py-12 bg-light">
+        <div class="container mx-auto px-4 py-8">
+            <h2 class="text-2xl font-bold mb-6 text-center text-secondary fire-wall">制作过程</h2>
+            <div class="grid grid-cols-1 gap-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <img src="https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260313_1773358348.png" alt="芷溪花灯制作过程1" class="w-full h-96 object-cover rounded-lg shadow-md cursor-pointer" onclick="openImageModal('https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260313_1773358348.png')">
+                    </div>
+                    <div>
+                        <img src="https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260313_1773358413.jpg" alt="芷溪花灯制作过程2" class="w-full h-96 object-cover rounded-lg shadow-md cursor-pointer" onclick="openImageModal('https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260313_1773358413.jpg')">
+                    </div>
+                </div>
+                <div class="text-center">
+                    <p class="mb-4 text-lg leading-relaxed" style="text-indent: 2em;">一盏芷溪花灯，凝聚着匠人数代相传的极致匠心。制作全程恪守古法，纯手工雕琢而成：匠人精选柔韧有度的竹篾为骨，经弯制、扎架、校正、定型，构架出挺拔匀称、错落有致的灯体轮廓；再以素纱薄纸为衣，经精细裱糊、裁剪修饰、描金绘彩、纹样点缀，灯面温润透光，雅致古朴。</p>
+                    <p class="mb-4 text-lg leading-relaxed" style="text-indent: 2em;">整灯分为上下两段，错落排布99盏灯盏，取"九九绵长"之吉祥寓意，象征福寿安康、家道兴旺、岁岁长安。</p>
+                    <p class="text-lg leading-relaxed" style="text-indent: 2em;">而最令人称奇的，便是纸包火的传世绝技：灯内点燃明火油灯，选用无烟无浊的天然茶籽油悉心调配，灯芯粗细均匀、灯火柔和平稳，明焰在薄纸之中燃烧，却能做到纸不焦、火不熄、光不散，于险中造极美，在方寸间显大智慧，堪称中国传统手工艺的巅峰巧思。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 民俗部分 -->
+    <section id="folk-custom" class="py-12 window-lattice">
+        <div class="container mx-auto px-4 py-8">
+            <h2 class="text-2xl font-bold mb-6 text-center text-secondary fire-wall">民俗活动</h2>
+            <div class="grid grid-cols-1 gap-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <img src="https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260313_1773358473.png" alt="芷溪花灯民俗活动1" class="w-full h-96 object-cover rounded-lg shadow-md cursor-pointer" onclick="openImageModal('https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260313_1773358473.png')">
+                    </div>
+                    <div>
+                        <img src="https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260313_1773358479.png" alt="芷溪花灯民俗活动2" class="w-full h-96 object-cover rounded-lg shadow-md cursor-pointer" onclick="openImageModal('https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260313_1773358479.png')">
+                    </div>
+                </div>
+                <div class="text-center">
+                    <p class="mb-4 text-lg leading-relaxed" style="text-indent: 2em;">花灯巡游，是芷溪一年中最盛大、最隆重的民俗仪式。由村中黄、杨、邱、华四大姓氏轮流主理，每姓执掌两年，八年一轮回，世代相袭、井然有序，是宗族同心、乡邻互助的生动体现。</p>
+                    <p class="mb-4 text-lg leading-relaxed" style="text-indent: 2em;">每架花灯出动，需数十人协同抬护、分工协作，配以铿锵锣鼓、悠扬唢呐，灯火长龙穿行于古祠古巷之间，流光溢彩、气势恢宏、蔚为大观。</p>
+                    <p class="text-lg leading-relaxed" style="text-indent: 2em;">活动集中于新春至元宵期间举行，承载着百姓祈福纳祥、驱邪迎瑞、人丁兴旺的美好愿景，既是辞旧迎新的喜庆庆典，也是为远行创业、求学之人壮行的祝福仪式。如今，芷溪花灯在坚守传统中创新发展，以活态传承融入现代生活，成为连城极具辨识度的文旅名片，让三百年不灭灯火穿越历史长河，在新时代依旧璀璨长明、光耀四方。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 图片放大模态框 -->
+    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+        <div class="relative max-w-4xl w-full max-h-[90vh]">
+            <button class="absolute top-4 right-4 text-white text-3xl hover:text-gray-300 cursor-pointer" onclick="closeImageModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <img id="modalImage" src="" alt="放大图片" class="w-full h-auto max-h-[80vh] object-contain">
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-center gap-8 w-full max-w-2xl mx-auto">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">芷溪</h3>
+                    <p class="mb-4">中国城市里坊制度活化石，明清建筑博物馆</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-white hover:text-accent transition-colors">
+                            <i class="fab fa-weixin text-2xl"></i>
+                        </a>
+                        <a href="#" class="text-white hover:text-accent transition-colors">
+                            <i class="fab fa-weibo text-2xl"></i>
+                        </a>
+                        <a href="#" class="text-white hover:text-accent transition-colors">
+                            <i class="fab fa-tiktok text-2xl"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="hover:text-accent transition-colors">首页</a></li>
+                        <li><a href="history.html" class="hover:text-accent transition-colors">历史脉络</a></li>
+                        <li><a href="architecture.html" class="hover:text-accent transition-colors">古建探秘</a></li>
+                        <li><a href="intangible.html" class="hover:text-accent transition-colors">非遗传承</a></li>
+                        <li><a href="tourism.html" class="hover:text-accent transition-colors">旅游服务</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 移动端菜单
+        document.getElementById('mobileMenuButton').addEventListener('click', function() {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        });
+
+        // 图片模态框功能
+        function openImageModal(imageUrl) {
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = imageUrl;
+            modal.classList.remove('hidden');
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.add('hidden');
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('imageModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeImageModal();
+            }
+        });
+
+        // 滚动动画
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('section:not(.animated)');
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                if (elementTop < windowHeight * 0.8) {
+                    gsap.from(element, { y: 50, opacity: 0, duration: 1 });
+                    element.classList.add('animated');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', animateOnScroll);
+        animateOnScroll(); // 初始检查
+    </script>
+</body>
+</html>

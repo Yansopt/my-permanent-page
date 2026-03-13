@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史文化 - 芷溪</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- GSAP 动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        /* 自定义样式 */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --color-primary: #C41E3A; /* 朱红 */
+            --color-secondary: #2D4356; /* 黛青 */
+            --color-tertiary: #F5F5DC; /* 米白 */
+            --color-accent: #DAA520; /* 金黄 */
+            --color-dark: #2F4F4F; /* 墨绿 */
+            --color-light: #F5F5F5; /* 浅灰 */
+        }
+        
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background-color: var(--color-tertiary);
+            color: var(--color-dark);
+        }
+        
+        .bg-primary { background-color: var(--color-primary); }
+        .bg-secondary { background-color: var(--color-secondary); }
+        .bg-tertiary { background-color: var(--color-tertiary); }
+        .bg-accent { background-color: var(--color-accent); }
+        .bg-dark { background-color: var(--color-dark); }
+        .bg-light { background-color: var(--color-light); }
+        
+        .text-primary { color: var(--color-primary); }
+        .text-secondary { color: var(--color-secondary); }
+        .text-tertiary { color: var(--color-tertiary); }
+        .text-accent { color: var(--color-accent); }
+        .text-dark { color: var(--color-dark); }
+        .text-light { color: var(--color-light); }
+        
+        .border-primary { border-color: var(--color-primary); }
+        .border-secondary { border-color: var(--color-secondary); }
+        .border-accent { border-color: var(--color-accent); }
+        
+        /* 导航菜单样式 */
+        .nav-menu {
+            background-color: var(--color-secondary);
+            color: white;
+            padding: 10px 0;
+        }
+        
+        .nav-menu ul {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .nav-menu li {
+            position: relative;
+        }
+        
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: block;
+            transition: background-color 0.3s ease;
+        }
+        
+        .nav-menu a:hover, .nav-menu a.active {
+            background-color: var(--color-primary);
+        }
+        
+        .nav-menu .submenu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: var(--color-secondary);
+            min-width: 200px;
+            display: none;
+            z-index: 100;
+        }
+        
+        .nav-menu li:hover .submenu {
+            display: block;
+        }
+        
+        /* 时间轴样式 */
+        .timeline {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 0;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background-color: var(--color-secondary);
+        }
+        
+        .timeline-container {
+            position: relative;
+            width: 50%;
+            padding: 10px 40px;
+        }
+        
+        .timeline-container.left {
+            left: 0;
+        }
+        
+        .timeline-container.right {
+            left: 50%;
+        }
+        
+        .timeline-content {
+            position: relative;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .timeline-container::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            width: 20px;
+            height: 20px;
+            background-color: var(--color-primary);
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        .timeline-container.left::after {
+            right: -10px;
+        }
+        
+        .timeline-container.right::after {
+            left: -10px;
+        }
+        
+        .timeline-year {
+            position: absolute;
+            top: 12px;
+            font-weight: bold;
+            font-size: 18px;
+            color: var(--color-primary);
+        }
+        
+        .timeline-container.left .timeline-year {
+            right: -60px;
+        }
+        
+        .timeline-container.right .timeline-year {
+            left: -60px;
+        }
+        
+        /* 时间轴拖拽控制 */
+        .timeline-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+        
+        .timeline-control-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--color-secondary);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .timeline-control-btn:hover {
+            background-color: var(--color-primary);
+        }
+        
+        /* 名人数据库样式 */
+        .filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--color-secondary);
+            border-radius: 20px;
+            background-color: white;
+            color: var(--color-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background-color: var(--color-secondary);
+            color: white;
+        }
+        
+        .person-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .person-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .person-img {
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .person-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .person-info {
+            padding: 15px;
+        }
+        
+        .person-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--color-secondary);
+        }
+        
+        .person-dynasty {
+            font-size: 14px;
+            color: var(--color-primary);
+            margin-bottom: 10px;
+        }
+        
+        .person-desc {
+            font-size: 14px;
+            color: var(--color-dark);
+            line-height: 1.5;
+        }
+        
+        /* 家风文化专栏样式 */
+        .family-card {
+            position: relative;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .family-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .family-bg {
+            height: 150px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        
+        .family-bg::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.7));
+        }
+        
+        .family-name {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            font-size: 24px;
+            font-weight: 600;
+            color: white;
+            z-index: 1;
+        }
+        
+        .family-content {
+            padding: 15px;
+        }
+        
+        .family-motto {
+            font-size: 16px;
+            font-style: italic;
+            color: var(--color-primary);
+            margin-bottom: 15px;
+            border-left: 3px solid var(--color-primary);
+            padding-left: 10px;
+        }
+        
+        .family-desc {
+            font-size: 14px;
+            color: var(--color-dark);
+            line-height: 1.5;
+        }
+        
+        /* 窗棂装饰元素 */
+        .window-lattice {
+            position: relative;
+        }
+        
+        .window-lattice::before,
+        .window-lattice::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 20px;
+            background-image: url('https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/9dc38b0d8cbb4261a00faa4e097879cc~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260212123004B7B3FD7F2383C835BCE9&rrcfp=f06b921b&x-expires=1773462667&x-signature=RqfOErcI9e0OCTWadDi%2BFTKM8%2FM%3D');
+            background-repeat: repeat-x;
+            background-size: contain;
+        }
+        
+        .window-lattice::before {
+            top: 0;
+            transform: rotate(180deg);
+        }
+        
+        .window-lattice::after {
+            bottom: 0;
+        }
+        
+        /* 风火墙装饰元素 */
+        .fire-wall {
+            position: relative;
+            padding-top: 50px;
+        }
+        
+        .fire-wall::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 50px;
+            background-image: url('https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/abc5c4852c8242dd82a1e275e9040820~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260212123004B7B3FD7F2383C835BCE9&rrcfp=f06b921b&x-expires=1773462667&x-signature=KGR3aUp44rGnJOC1MdjLhMKfLJE%3D');
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .nav-menu ul {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .nav-menu .submenu {
+                position: static;
+                display: none;
+            }
+            
+            .nav-menu li:hover .submenu {
+                display: block;
+            }
+            
+            .timeline::before {
+                left: 31px;
+            }
+            
+            .timeline-container {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            
+            .timeline-container.right {
+                left: 0;
+            }
+            
+            .timeline-container::after {
+                left: 21px;
+            }
+            
+            .timeline-container.left .timeline-year,
+            .timeline-container.right .timeline-year {
+                left: 21px;
+                top: -30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="bg-secondary text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center">
+                <h1 class="text-2xl font-bold">芷溪</h1>
+            </div>
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="index.html" class="hover:text-accent transition-colors">首页</a>
+            </div>
+            <button class="md:hidden text-2xl" id="mobileMenuButton">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <!-- 移动端菜单 -->
+        <div class="md:hidden hidden bg-secondary" id="mobileMenu">
+            <div class="container mx-auto px-4 py-2 flex flex-col space-y-2">
+                <a href="index.html" class="block py-2 hover:text-accent transition-colors">首页</a>
+                <a href="#" class="block py-2 hover:text-accent transition-colors">关于我们</a>
+                <a href="tourism.html" class="block py-2 hover:text-accent transition-colors">旅游服务</a>
+                <button class="bg-primary hover:bg-opacity-80 text-white px-4 py-2 rounded-md transition-colors w-full">
+                    <i class="fas fa-ticket-alt mr-1"></i> 门票预订
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 五大板块导航 -->
+    <nav class="nav-menu sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4">
+            <ul>
+                <li>
+                    <a href="index.html"><i class="fas fa-home mr-1"></i> 首页</a>
+                </li>
+                <li>
+                    <a href="history.html" class="active"><i class="fas fa-history mr-1"></i> 历史文化</a>
+                    <ul class="submenu">
+                        <li><a href="#timeline">历史沿革</a></li>
+                        <li><a href="#person-database">名人风采</a></li>
+                        <li><a href="#family-culture">客家文化</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="architecture.html#architecture-gallery"><i class="fas fa-building mr-1"></i> 古建宗祠</a>
+                    <ul class="submenu">
+                        <li><a href="architecture.html#panorama">3D全景漫游</a></li>
+                        <li><a href="architecture.html#architecture-gallery">宗祠图鉴</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="intangible.html"><i class="fas fa-mask mr-1"></i> 非遗传承</a>
+                    <ul class="submenu">
+                        <li><a href="#">非遗项目</a></li>
+                        <li><a href="#">视频展示</a></li>
+                        <li><a href="#">文创产品</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="tourism.html"><i class="fas fa-map-marked-alt mr-1"></i> 旅游服务</a>
+                    <ul class="submenu">
+                        <li><a href="tourism.html#map-navigation">地图导航</a></li>
+                        <li><a href="tourism.html#popular-checkpoints">景点打卡</a></li>
+                        <li><a href="tourism.html#food-recommendations">客家美食</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 页面标题 -->
+    <section class="bg-secondary text-white py-12">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl font-bold mb-4">历史文化</h1>
+            <p class="text-xl">探索芷溪千年历史，感受客家文化魅力</p>
+        </div>
+    </section>
+
+    <!-- 历史沿革 -->
+    <section id="timeline" class="py-12 window-lattice">
+        <div class="container mx-auto px-4 py-8">
+            <h2 class="text-2xl font-bold mb-6 text-center text-secondary fire-wall">历史沿革</h2>
+            <p class="text-center mb-8 text-gray-700">从宋代到现代，见证芷溪古村的历史变迁</p>
+            
+            <div class="timeline">
+                <div class="timeline-container left">
+                    <div class="timeline-year">宋代</div>
+                    <div class="timeline-content">
+                        <h3 class="text-xl font-bold mb-2 text-secondary">芷溪起源</h3>
+                        <p class="text-gray-700">南宋时期，黄、杨、邱、华四姓客家人开始在芷溪定居，形成了最初的村落格局。芷溪的历史可以追溯到这一时期，当时的先民们在此开荒种地，建立家园。</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-container right">
+                    <div class="timeline-year">明代</div>
+                    <div class="timeline-content">
+                        <h3 class="text-xl font-bold mb-2 text-secondary">村落发展</h3>
+                        <p class="text-gray-700">明代时期，芷溪村落逐渐发展壮大，人口增加，经济繁荣。先民们开始建造宗祠，形成了初步的宗族文化体系。建筑风格逐渐形成，展现出客家建筑的特色。</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-container left">
+                    <div class="timeline-year">清代</div>
+                    <div class="timeline-content">
+                        <h3 class="text-xl font-bold mb-2 text-secondary">鼎盛时期</h3>
+                        <p class="text-gray-700">清代是芷溪的鼎盛时期，经济繁荣，文化发达。先民们建造了大量的宗祠和民居，形成了独特的客家建筑群落。芷溪的宗族文化达到了巅峰，成为客家文化的重要代表。</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-container right">
+                    <div class="timeline-year">近现代</div>
+                    <div class="timeline-content">
+                        <h3 class="text-xl font-bold mb-2 text-secondary">传承发展</h3>
+                        <p class="text-gray-700">近现代以来，芷溪虽经历了社会变革，但客家文化传统得以保留和传承。许多芷溪人走出家乡，在各地发展，但始终保持着对家乡的深厚情感，为芷溪的发展做出了贡献。</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-container left">
+                    <div class="timeline-year">当代</div>
+                    <div class="timeline-content">
+                        <h3 class="text-xl font-bold mb-2 text-secondary">保护振兴</h3>
+                        <p class="text-gray-700">新中国成立后，芷溪得到了有效的保护和发展。2005年被列为福建省历史文化名村，2010年被列为中国历史文化名村。近年来，芷溪的古村落保护和旅游开发取得了显著成效，成为展示客家文化的重要窗口。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timeline-controls">
+                <div class="timeline-control-btn" id="timelinePrev">
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="timeline-control-btn" id="timelineNext">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 名人风采 -->
+    <section id="person-database" class="py-12 bg-light">
+        <div class="container mx-auto px-4">
+            <h2 class="text-2xl font-bold mb-6 text-center text-secondary fire-wall">名人风采</h2>
+            <p class="text-center mb-8 text-gray-700">探索芷溪古村走出的历史名人，了解他们的生平事迹</p>
+            
+            <div class="filter-container mb-8">
+                <button class="filter-btn active" data-filter="all">全部</button>
+                <button class="filter-btn" data-filter="ming">明代</button>
+                <button class="filter-btn" data-filter="qing">清代</button>
+                <button class="filter-btn" data-filter="modern">近现代</button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 黄慎 -->
+                <div class="person-card" data-category="qing">
+                    <div class="person-img">
+                        <img src="https://bkimg.cdn.bcebos.com/pic/314e251f95cad1c8a786851e2b6e7009c93d70cffbf0?x-bce-process=image/format,f_auto/watermark,image_d2F0ZXIvYmFpa2UyNzI,g_7,xp_5,yp_5,P_20/resize,m_lfit,limit_1,h_1080" alt="黄慎" class="w-full h-full object-cover">
+                    </div>
+                    <div class="person-info">
+                        <h3 class="person-name">黄慎</h3>
+                        <p class="person-dynasty">清代 (1687-1772)</p>
+                        <p class="person-desc">清代著名画家，"扬州八怪"之一。擅长人物、山水、花鸟等题材，画风独特，笔意奔放，对后世影响深远。</p>
+                        <button class="mt-4 bg-primary hover:bg-opacity-80 text-white px-4 py-2 rounded transition-colors" onclick="showPersonDetail('黄慎')">
+                            查看详情
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 杨簧 -->
+                <div class="person-card" data-category="qing">
+                    <div class="person-img">
+                        <img src="https://q0.itc.cn/q_70/images03/20240517/fea92b5b8d4248cea5dbb7990f708918.png" alt="杨簧" class="w-full h-full object-cover">
+                    </div>
+                    <div class="person-info">
+                        <h3 class="person-name">杨簧</h3>
+                        <p class="person-dynasty">清代 (1786-1841)</p>
+                        <p class="person-desc">清代官员，曾任顺天府尹、江宁布政使等职。为官清廉，政绩显著，深受百姓爱戴。</p>
+                        <button class="mt-4 bg-primary hover:bg-opacity-80 text-white px-4 py-2 rounded transition-colors" onclick="showPersonDetail('杨簧')">
+                            查看详情
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 黄翼升 -->
+                <div class="person-card" data-category="qing">
+                    <div class="person-img">
+                        <img src="https://bkimg.cdn.bcebos.com/pic/77094b36acaf2edda3cc4176ac4916e93901203f35a1?x-bce-process=image/format,f_auto/watermark,image_d2F0ZXIvYmFpa2UyNzI,g_7,xp_5,yp_5,P_20/resize,m_lfit,limit_1,h_1080" alt="黄翼升" class="w-full h-full object-cover">
+                    </div>
+                    <div class="person-info">
+                        <h3 class="person-name">黄翼升</h3>
+                        <p class="person-dynasty">清代 (1818-1894)</p>
+                        <p class="person-desc">清代海军将领，曾任长江水师提督。参与镇压太平天国运动，为维护国家统一做出了贡献。</p>
+                        <button class="mt-4 bg-primary hover:bg-opacity-80 text-white px-4 py-2 rounded transition-colors" onclick="showPersonDetail('黄翼升')">
+                            查看详情
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 客家文化 -->
+    <section id="family-culture" class="py-12 window-lattice">
+        <div class="container mx-auto px-4 py-8">
+            <h2 class="text-2xl font-bold mb-6 text-center text-secondary fire-wall">客家文化</h2>
+            <p class="text-center mb-8 text-gray-700">感受客家文化的独特魅力，传承优秀客家传统</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 黄氏家族 -->
+                <div class="family-card">
+                    <div class="family-bg" style="background-image: url('https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260312_1773329336.png')">
+                        <h3 class="family-name">黄氏家族</h3>
+                    </div>
+                    <div class="family-content">
+                        <p class="family-motto">"崇文重教，耕读传家"</p>
+                        <p class="family-desc">黄氏是芷溪的主要姓氏之一，历史悠久，人才辈出。黄氏家族注重教育，崇尚文化，涌现出许多文人墨客和官员。黄氏家风强调崇文重教、耕读传家，注重培养家族成员的文化素养和道德品质。</p>
+                        <button class="mt-4 bg-primary hover:bg-opacity-80 text-white px-4 py-2 rounded transition-colors" onclick="showFamilyDetail('黄氏家族')">
+                            查看详细
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 杨氏家族 -->
+                <div class="family-card">
+                    <div class="family-bg" style="background-image: url('https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260312_1773329483.jpg')">
+                        <h3 class="family-name">杨氏家族</h3>
+                    </div>
+                    <div class="family-content">
+                        <p class="family-motto">"忠孝传家，诚信为本"</p>
+                        <p class="family-desc">杨氏是芷溪的另一大姓氏，历史上人才济济。杨氏家族注重忠孝观念，强调诚信为本，培养了许多品德高尚、才能出众的家族成员。杨氏家风注重家族团结，强调邻里和谐，为芷溪的发展做出了重要贡献。</p>
+                        <button class="mt-4 bg-primary hover:bg-opacity-80 text-white px-4 py-2 rounded transition-colors" onclick="showFamilyDetail('杨氏家族')">
+                            查看详细
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 客家民俗 -->
+                <div class="family-card">
+                    <div class="family-bg" style="background-image: url('https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260313_1773357185.jpg')">
+                        <h3 class="family-name">客家民俗</h3>
+                    </div>
+                    <div class="family-content">
+                        <p class="family-motto">"传承文化，守望传统"</p>
+                        <p class="family-desc">芷溪客家民俗丰富多彩，包括传统节日庆典、民间艺术表演、特色美食制作等。这些民俗活动不仅是芷溪人民生活的重要组成部分，也是客家文化传承的重要载体。通过这些活动，芷溪的客家文化得以代代相传，焕发出新的活力。</p>
+                        <button class="mt-4 bg-primary hover:bg-opacity-80 text-white px-4 py-2 rounded transition-colors" onclick="showFamilyDetail('客家民俗')">
+                            查看详细
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-center gap-8 w-full max-w-2xl mx-auto">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">芷溪</h3>
+                    <p class="mb-4">千年客家古村，中国历史文化名村</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-white hover:text-accent transition-colors">
+                            <i class="fab fa-weixin text-2xl"></i>
+                        </a>
+                        <a href="#" class="text-white hover:text-accent transition-colors">
+                            <i class="fab fa-weibo text-2xl"></i>
+                        </a>
+                        <a href="#" class="text-white hover:text-accent transition-colors">
+                            <i class="fab fa-tiktok text-2xl"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="hover:text-accent transition-colors">首页</a></li>
+                        <li><a href="history.html" class="hover:text-accent transition-colors">历史文化</a></li>
+                        <li><a href="architecture.html" class="hover:text-accent transition-colors">古建宗祠</a></li>
+                        <li><a href="intangible.html" class="hover:text-accent transition-colors">非遗传承</a></li>
+                        <li><a href="tourism.html" class="hover:text-accent transition-colors">旅游服务</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 名人详情模态框 -->
+    <div id="personModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-2xl font-bold text-secondary" id="modalTitle">名人详情</h3>
+                    <button class="text-gray-500 hover:text-gray-700 text-2xl" onclick="closePersonDetail()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="modalContent">
+                    <!-- 动态内容将在这里加载 -->
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button class="bg-primary hover:bg-opacity-80 text-white px-6 py-2 rounded transition-colors" onclick="closePersonDetail()">
+                        关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 移动端菜单
+        document.getElementById('mobileMenuButton').addEventListener('click', function() {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        });
+
+        // 时间轴控制
+        document.getElementById('timelinePrev').addEventListener('click', function() {
+            const timeline = document.querySelector('.timeline');
+            timeline.scrollBy({ left: -300, behavior: 'smooth' });
+        });
+
+        document.getElementById('timelineNext').addEventListener('click', function() {
+            const timeline = document.querySelector('.timeline');
+            timeline.scrollBy({ left: 300, behavior: 'smooth' });
+        });
+
+        // 名人数据库筛选
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const personCards = document.querySelectorAll('.person-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 移除所有按钮的active类
+                filterBtns.forEach(b => b.classList.remove('active'));
+                // 给当前按钮添加active类
+                this.classList.add('active');
+                
+                const filter = this.getAttribute('data-filter');
+                
+                personCards.forEach(card => {
+                    if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // 名人详情模态框
+        function showPersonDetail(name) {
+            const modal = document.getElementById('personModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            
+            modalTitle.textContent = name + ' 详情';
+            
+            // 根据名人姓名加载不同内容
+            let content = '';
+            if (name === '黄慎') {
+                content = `
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-1">
+                            <img src="https://bkimg.cdn.bcebos.com/pic/314e251f95cad1c8a786851e2b6e7009c93d70cffbf0?x-bce-process=image/format,f_auto/watermark,image_d2F0ZXIvYmFpa2UyNzI,g_7,xp_5,yp_5,P_20/resize,m_lfit,limit_1,h_1080" alt="黄慎" class="w-full h-64 object-cover rounded-md">
+                            <div class="mt-4">
+                                <h4 class="font-bold mb-2">基本信息</h4>
+                                <ul class="space-y-2">
+                                    <li><span class="font-semibold">姓名:</span> 黄慎</li>
+                                    <li><span class="font-semibold">字:</span> 恭寿、恭懋</li>
+                                    <li><span class="font-semibold">号:</span> 瘿瓢子、东海布衣等</li>
+                                    <li><span class="font-semibold">朝代:</span> 清代</li>
+                                    <li><span class="font-semibold">生卒年:</span> 1687-1772</li>
+                                    <li><span class="font-semibold">籍贯:</span> 福建连城芷溪</li>
+                                    <li><span class="font-semibold">主要成就:</span> "扬州八怪"之一、著名画家</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <h4 class="font-bold mb-2">生平事迹</h4>
+                            <p class="mb-4">黄慎（1687年－1772年），福建连城芷溪人，清代著名画家，"扬州八怪"之一。他擅长人物、山水、花鸟等题材，画风独特，笔意奔放，对后世影响深远。</p>
+                            <p class="mb-4">黄慎出身贫苦，自幼勤奋好学，尤其喜爱绘画。他早年曾拜同乡画家上官周为师，学习人物画。后来，他游历各地，广交文人墨客，逐渐形成了自己独特的艺术风格。</p>
+                            <p class="mb-4">黄慎的画作题材广泛，包括历史人物、民间故事、山水风光等。他的人物画尤为出色，线条流畅，形象生动，富有表现力。他的花鸟画也别具一格，构图新颖，色彩鲜明。</p>
+                            <p class="mb-4">黄慎的代表作品有《八仙图》、《渔翁图》、《苏武牧羊图》等。他的画作不仅在当时受到人们的喜爱，而且对后世的画家产生了深远的影响。</p>
+                            <h4 class="font-bold mb-2 mt-6">艺术成就</h4>
+                            <p class="mb-4">黄慎是"扬州八怪"中最具代表性的画家之一，他的艺术风格独特，笔意奔放，构图新颖，色彩鲜明。他的画作不仅在当时受到人们的喜爱，而且对后世的画家产生了深远的影响。他的艺术成就为芷溪增添了光彩，成为芷溪客家文化的重要组成部分。</p>
+                        </div>
+                    </div>
+                `;
+            } else if (name === '杨簧') {
+                content = `
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-1">
+                            <img src="https://q0.itc.cn/q_70/images03/20240517/fea92b5b8d4248cea5dbb7990f708918.png" alt="杨簧" class="w-full h-64 object-cover rounded-md">
+                            <div class="mt-4">
+                                <h4 class="font-bold mb-2">基本信息</h4>
+                                <ul class="space-y-2">
+                                    <li><span class="font-semibold">姓名:</span> 杨簧</li>
+                                    <li><span class="font-semibold">字:</span> 竹圃</li>
+                                    <li><span class="font-semibold">号:</span> 小园</li>
+                                    <li><span class="font-semibold">朝代:</span> 清代</li>
+                                    <li><span class="font-semibold">生卒年:</span> 1786-1841</li>
+                                    <li><span class="font-semibold">籍贯:</span> 福建连城芷溪</li>
+                                    <li><span class="font-semibold">主要成就:</span> 清代官员、顺天府尹</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <h4 class="font-bold mb-2">生平事迹</h4>
+                            <p class="mb-4">杨簧（1786年－1841年），福建连城芷溪人，清代官员。他曾任顺天府尹、江宁布政使等职，为官清廉，政绩显著，深受百姓爱戴。</p>
+                            <p class="mb-4">杨簧自幼勤奋好学，考取进士后进入仕途。他先后在多个地方任职，每到一处都认真履行职责，为当地百姓谋福利。他重视教育，提倡文化，为地方的发展做出了重要贡献。</p>
+                            <p class="mb-4">杨簧在顺天府尹任上，致力于改善民生，加强社会治安，深受百姓爱戴。他还积极参与赈灾工作，帮助受灾群众度过难关。</p>
+                            <p class="mb-4">杨簧的一生，是为国家和人民服务的一生。他的事迹和精神，为芷溪的客家文化增添了光彩，成为芷溪人民的骄傲。</p>
+                            <h4 class="font-bold mb-2 mt-6">历史评价</h4>
+                            <p class="mb-4">杨簧是清代一位杰出的官员，他为官清廉，政绩显著，深受百姓爱戴。他的事迹和精神，体现了客家文化中"忠孝传家，诚信为本"的传统价值观，为后世树立了榜样。</p>
+                        </div>
+                    </div>
+                `;
+            } else if (name === '黄翼升') {
+                content = `
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-1">
+                            <img src="https://bkimg.cdn.bcebos.com/pic/77094b36acaf2edda3cc4176ac4916e93901203f35a1?x-bce-process=image/format,f_auto/watermark,image_d2F0ZXIvYmFpa2UyNzI,g_7,xp_5,yp_5,P_20/resize,m_lfit,limit_1,h_1080" alt="黄翼升" class="w-full h-64 object-cover rounded-md">
+                            <div class="mt-4">
+                                <h4 class="font-bold mb-2">基本信息</h4>
+                                <ul class="space-y-2">
+                                    <li><span class="font-semibold">姓名:</span> 黄翼升</li>
+                                    <li><span class="font-semibold">字:</span> 昌岐</li>
+                                    <li><span class="font-semibold">号:</span> 梧冈</li>
+                                    <li><span class="font-semibold">朝代:</span> 清代</li>
+                                    <li><span class="font-semibold">生卒年:</span> 1818-1894</li>
+                                    <li><span class="font-semibold">籍贯:</span> 福建连城芷溪</li>
+                                    <li><span class="font-semibold">主要成就:</span> 清代海军将领、长江水师提督</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <h4 class="font-bold mb-2">生平事迹</h4>
+                            <p class="mb-4">黄翼升（1818年－1894年），福建连城芷溪人，清代海军将领。他曾任长江水师提督，参与镇压太平天国运动，为维护国家统一做出了贡献。</p>
+                            <p class="mb-4">黄翼升自幼习武，长大后投身军旅。他作战勇敢，屡立战功，逐渐晋升为高级将领。在镇压太平天国运动中，他指挥水师多次击败太平军，为清政府平定叛乱做出了重要贡献。</p>
+                            <p class="mb-4">黄翼升在长江水师提督任上，致力于加强水师建设，提高部队战斗力。他重视士兵训练，改善武器装备，使长江水师成为当时中国最强大的水上力量之一。</p>
+                            <p class="mb-4">黄翼升的一生，是为国家和民族利益奋斗的一生。他的事迹和精神，体现了客家文化中"忠勇爱国"的传统价值观，为后世树立了榜样。</p>
+                            <h4 class="font-bold mb-2 mt-6">历史评价</h4>
+                            <p class="mb-4">黄翼升是清代一位杰出的海军将领，他作战勇敢，指挥有方，为维护国家统一做出了重要贡献。他的事迹和精神，为芷溪的客家文化增添了光彩，成为芷溪人民的骄傲。</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            modalContent.innerHTML = content;
+            modal.classList.remove('hidden');
+        }
+        
+        function closePersonDetail() {
+            document.getElementById('personModal').classList.add('hidden');
+        }
+        
+        // 家族文化详情模态框
+        function showFamilyDetail(name) {
+            const modal = document.getElementById('personModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            
+            modalTitle.textContent = name + ' 详情';
+            
+            // 根据家族名称加载不同内容
+            let content = '';
+            if (name === '黄氏家族') {
+                content = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <img src="https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260312_1773329336.png" alt="黄氏家族" class="w-full h-64 object-cover rounded-md">
+                            <div class="mt-4">
+                                <h4 class="font-bold mb-2">家族基本信息</h4>
+                                <ul class="space-y-2">
+                                    <li><span class="font-semibold">家族名称:</span> 黄氏家族</li>
+                                    <li><span class="font-semibold">郡望:</span> 江夏郡</li>
+                                    <li><span class="font-semibold">堂号:</span> 江夏堂</li>
+                                    <li><span class="font-semibold">迁入时间:</span> 宋代</li>
+                                    <li><span class="font-semibold">著名人物:</span> 黄慎、黄翼升等</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-bold mb-2">家族历史</h4>
+                            <p class="mb-4">黄氏家族是芷溪的主要姓氏之一，历史悠久，人才辈出。宋代时期，黄氏先祖从宁化迁到芷溪，在此定居繁衍生息。经过数百年的发展，黄氏家族成为芷溪的望族，涌现出许多杰出人才。</p>
+                            <p class="mb-4">黄氏家族注重教育，崇尚文化，历代都有文人墨客和官员。清代画家黄慎、水师将领黄翼升等都是黄氏家族的杰出代表。</p>
+                            <h4 class="font-bold mb-2 mt-6">家风家训</h4>
+                            <p class="mb-4">黄氏家族的家风强调"崇文重教，耕读传家"，注重培养家族成员的文化素养和道德品质。家族设有族学，鼓励子弟读书求学，考取功名。同时，黄氏家族也注重商业发展，许多族人从事商业活动，积累了大量财富，为家族的发展和文化建设提供了经济基础。</p>
+                            <p class="mb-4">黄氏家族的家训包括：尊敬长辈、团结族亲、勤奋学习、诚信经商、爱国爱乡等内容，这些家训对家族成员的行为规范和道德修养起到了重要的指导作用。</p>
+                        </div>
+                    </div>
+                `;
+            } else if (name === '杨氏家族') {
+                content = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <img src="https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260312_1773329483.jpg" alt="杨氏家族" class="w-full h-64 object-cover rounded-md">
+                            <div class="mt-4">
+                                <h4 class="font-bold mb-2">家族基本信息</h4>
+                                <ul class="space-y-2">
+                                    <li><span class="font-semibold">家族名称:</span> 杨氏家族</li>
+                                    <li><span class="font-semibold">郡望:</span> 弘农郡</li>
+                                    <li><span class="font-semibold">堂号:</span> 弘农堂</li>
+                                    <li><span class="font-semibold">迁入时间:</span> 宋代</li>
+                                    <li><span class="font-semibold">著名人物:</span> 杨簧等</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-bold mb-2">家族历史</h4>
+                            <p class="mb-4">杨氏家族是芷溪的另一大姓氏，历史上人才济济。宋代时期，杨氏先祖从宁化迁到芷溪，在此定居繁衍生息。经过数百年的发展，杨氏家族成为芷溪的望族，涌现出许多杰出人才。</p>
+                            <p class="mb-4">杨氏家族注重忠孝观念，强调诚信为本，培养了许多品德高尚、才能出众的家族成员。清代官员杨簧就是杨氏家族的杰出代表。</p>
+                            <h4 class="font-bold mb-2 mt-6">家风家训</h4>
+                            <p class="mb-4">杨氏家族的家风强调"忠孝传家，诚信为本"，注重培养家族成员的道德品质和社会责任感。家族注重团结，强调邻里和谐，为芷溪的发展做出了重要贡献。</p>
+                            <p class="mb-4">杨氏家族的家训包括：忠君爱国、孝顺父母、尊敬长辈、诚信待人、勤奋学习、节俭持家等内容，这些家训对家族成员的行为规范和道德修养起到了重要的指导作用。</p>
+                        </div>
+                    </div>
+                `;
+            } else if (name === '客家民俗') {
+                content = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <img src="https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260313_1773357185.jpg" alt="客家民俗" class="w-full h-64 object-cover rounded-md">
+                            <div class="mt-4">
+                                <h4 class="font-bold mb-2">民俗类别</h4>
+                                <ul class="space-y-2">
+                                    <li><span class="font-semibold">传统节日:</span> 春节、元宵节、清明节等</li>
+                                    <li><span class="font-semibold">民间艺术:</span> 花灯、山歌、木偶戏等</li>
+                                    <li><span class="font-semibold">特色美食:</span> 客家酿豆腐、梅菜扣肉等</li>
+                                    <li><span class="font-semibold">传统工艺:</span> 花灯制作、竹编等</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-bold mb-2">民俗活动</h4>
+                            <p class="mb-4">芷溪客家民俗丰富多彩，包括传统节日庆典、民间艺术表演、特色美食制作等。这些民俗活动不仅是芷溪人民生活的重要组成部分，也是客家文化传承的重要载体。</p>
+                            <p class="mb-4">春节期间，芷溪会举行盛大的花灯巡游活动，家家户户张灯结彩，热闹非凡。元宵节则有猜灯谜、吃元宵等传统习俗。清明节时，人们会祭祖扫墓，表达对先人的敬意和怀念。</p>
+                            <h4 class="font-bold mb-2 mt-6">文化意义</h4>
+                            <p class="mb-4">芷溪客家民俗是客家文化的重要组成部分，体现了客家人的生活方式、价值观念和审美情趣。通过这些民俗活动，芷溪的客家文化得以代代相传，焕发出新的活力。</p>
+                            <p class="mb-4">近年来，芷溪的客家民俗活动得到了有效的保护和传承，成为展示客家文化的重要窗口，吸引了越来越多的游客前来体验和了解客家文化。</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            modalContent.innerHTML = content;
+            modal.classList.remove('hidden');
+        }
+        
+        // 名人数据库分页功能
+        document.querySelectorAll('.flex.justify-center a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // 移除所有页码的active状态
+                document.querySelectorAll('.flex.justify-center a').forEach(item => {
+                    item.classList.remove('bg-secondary', 'text-white', 'border-secondary');
+                    item.classList.add('bg-white', 'border-gray-300', 'hover:bg-gray-100');
+                });
+                
+                // 添加当前页码的active状态
+                if (!this.querySelector('i')) {
+                    this.classList.remove('bg-white', 'border-gray-300', 'hover:bg-gray-100');
+                    this.classList.add('bg-secondary', 'text-white', 'border-secondary');
+                }
+                
+                // 模拟页面加载
+                const personGrid = document.querySelector('#person-database .grid');
+                const loadingHTML = `
+                    <div class="col-span-full flex justify-center items-center py-12">
+                        <div class="text-center">
+                            <i class="fas fa-spinner fa-spin text-3xl text-secondary mb-4"></i>
+                            <p class="text-gray-600">加载中...</p>
+                        </div>
+                    </div>
+                `;
+                
+                personGrid.innerHTML = loadingHTML;
+                
+                // 获取页码并加载对应内容
+                const page = this.textContent.trim() || 1;
+                
+                // 模拟加载延迟
+                setTimeout(() => {
+                    let content = '';
+                    
+                    if (page === '1' || page === 1) {
+                        // 第一页内容
+                        content = `
+                            <!-- 林则徐 -->
+                            <div class="person-card" data-category="qing">
+                                <div class="person-img">
+                                    <img src="https://ect.lcu.edu.cn/images/content/2021-11/20211128214140273366.jpg" alt="林则徐" class="w-full h-full object-cover">
+                                </div>
+                                <div class="person-info">
+                                    <h3 class="person-name">林则徐</h3>
+                                    <p class="person-dynasty">清代 (1785-1850)</p>
+                                    <p class="person-desc">民族英雄，中国近代"睁眼看世界第一人"。曾任湖广总督、钦差大臣等职，领导了著名的虎门销烟，是中国近代史上抵御外侮的杰出代表。</p>
+                                    <button class="mt-4 bg-primary hover:bg-opacity-80 text-white px-4 py-2 rounded transition-colors" onclick="showPersonDetail('林则徐')">
+                                        查看详情
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- 严复 -->
+                            <div class="person-card" data-category="modern">
+                                <div class="person-img">
+                                    <img src="https://ts1.tc.mm.bing.net/th/id/R-C.a80ff399616552589f347befa785eb10?rik=R0rsmeM93txhcA&riu=http%3a%2f%2fd.ifengimg.com%2fq100%2fimg1.ugc.ifeng.com%2fnewugc%2f20210108%2f16%2fwemedia%2fe387469083f5dad20e2632eb29752945a8403f31_size816_w400_h521.png&ehk=dXxy%2feXtd2qEgBf9nsfei%2fhkJKCK6LzYPiN4G03HQxs%3d&risl=&pid=ImgRaw&r=0" alt="严复" class="w-full h-full object-cover">
+                                </div>
+                                <div class="person-info">
+                                    <h3 class="person-name">严复</h3>
+                                    <p class="person-dynasty">近现代 (1854-1921)</p>
+                                    <p class="person-desc">近代著名的启蒙思想家、翻译家和教育家。翻译了《天演论》等西方学术著作，系统地将西方的政治学、经济学、社会学、哲学和自然科学介绍到中国。</p>
+                                    <button class="mt-4 bg-primary hover:bg-opacity-80 text-white px-4 py-2 rounded transition-colors" onclick="showPersonDetail('严复')">
+                                        查看详情
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- 沈葆桢 -->
+                            <div class="person-card" data-category="qing">
+                                <div class="person-img">
+                                    <img src="https://ts1.tc.mm.bing.net/th/id/OIP-C.6Xi1aGdazwmt9Zjn-d5wbwAAAA?rs=1&pid=ImgDetMain&o=7&rm=3" alt="沈葆桢" class="w-full h-full object-cover">
+                                </div>
+                                <div class="person-info">
+                                    <h3 class="person-name">沈葆桢</h3>
+                                    <p class="person-dynasty">清代 (1820-1879)</p>
+                                    <p class="person-desc">林则徐的次女婿，官至福建船政大臣、两江总督兼南洋通商大臣。一生以主办船政、筹建海防、开发台湾等见著，是中国近代造船业与海军教育的开创者。</p>
+                                    <button class="mt-4 bg-primary hover:bg-opacity-80 text-white px-4 py-2 rounded transition-colors" onclick="showPersonDetail('沈葆桢')">
+                                        查看详情
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    } else if (page === '2') {
+                        // 第二页内容
+                        content = `
+                            <!-- 林觉民 -->
+                            <div class="person-card" data-category="modern">
+                                <div class="person-img">
+                                    <img src="https://ts2.cn.mm.bing.net/th/id/R-C.8c7f8c7f8c7f8c7f8c7f8c7f8c7f8c7f?rik=R0rsmeM93txhcA&pid=ImgRaw&r=0" alt="林觉民" class="w-full h-full object-cover">
+                                </div>
+                                <div class="person-info">
+                                    <h3 class="person-name">林觉民</h3>
+                                    <p class="person-dynasty">近现代 (1887-1911)</p>
+                                    <p class="person-desc">黄花岗七十二烈士之一，民主革命志士。参加广州起义，被捕后从容就义，年仅24岁。他的《与妻书》情真意切，感人至深，成为中国近代文学史上的经典之作。</p>
+                                    <button class="mt-4 bg-primary hover:bg-opacity-80 text-white px-4 py-2 rounded transition-colors" onclick="showPersonDetail('林觉民')">
+                                        查看详情
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- 冰心 -->
+                            <div class="person-card" data-category="modern">
+                                <div class="person-img">
+                                    <img src="https://ts2.cn.mm.bing.net/th/id/R-C.8c7f8c7f8c7f8c7f8c7f8c7f8c7f8c7f?rik=R0rsmeM93txhcA&pid=ImgRaw&r=0" alt="冰心" class="w-full h-full object-cover">
+                                </div>
+                                <div class="person-info">
+                                    <h3 class="person-name">冰心</h3>
+                                    <p class="person-dynasty">近现代 (1900-1999)</p>
+                                    <p class="person-desc">著名女作家、诗人、翻译家、儿童文学家。她的作品充满了对母爱、童真和自然的赞美，如《繁星》《春水》《寄小读者》等，影响了一代又一代的读者。</p>
+                                    <button class="mt-4 bg-primary hover:bg-opacity-80 text-white px-4 py-2 rounded transition-colors" onclick="showPersonDetail('冰心')">
+                                        查看详情
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- 林徽因 -->
+                            <div class="person-card" data-category="modern">
+                                <div class="person-img">
+                                    <img src="https://ts2.cn.mm.bing.net/th/id/R-C.8c7f8c7f8c7f8c7f8c7f8c7f8c7f8c7f?rik=R0rsmeM93txhcA&pid=ImgRaw&r=0" alt="林徽因" class="w-full h-full object-cover">
+                                </div>
+                                <div class="person-info">
+                                    <h3 class="person-name">林徽因</h3>
+                                    <p class="person-dynasty">近现代 (1904-1955)</p>
+                                    <p class="person-desc">著名建筑师、诗人、作家。她是中国第一位女性建筑学家，参与了人民英雄纪念碑和中华人民共和国国徽的设计。她的文学作品如《你是人间的四月天》等深受读者喜爱。</p>
+                                    <button class="mt-4 bg-primary hover:bg-opacity-80 text-white px-4 py-2 rounded transition-colors" onclick="showPersonDetail('林徽因')">
+                                        查看详情
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    } else if (page === '3') {
+                        // 第三页内容
+                        content = `
+                            <!-- 黄璞 -->
+                            <div class="person-card" data-category="tang">
+                                <div class="person-img">
+                                    <img src="https://ts2.cn.mm.bing.net/th/id/R-C.8c7f8c7f8c7f8c7f8c7f8c7f8c7f8c7f?rik=R0rsmeM93txhcA&pid=ImgRaw&r=0" alt="黄璞" class="w-full h-full object-cover">
+                                </div>
+                                <div class="person-info">
+                                    <h3 class="person-name">黄璞</h3>
+                                    <p class="person-dynasty">唐代 (867-950)</p>
+                                    <p class="person-desc">唐代文学家、官员。曾任崇文馆校书郎、著作郎等职，著有《闽中名士传》等书。他是黄巷的始祖，为福州的文化发展做出了重要贡献。</p>
+                                    <button class="mt-4 bg-primary hover:bg-opacity-80 text-white px-4 py-2 rounded transition-colors" onclick="showPersonDetail('黄璞')">
+                                        查看详情
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- 张经 -->
+                            <div class="person-card" data-category="ming">
+                                <div class="person-img">
+                                    <img src="https://ts2.cn.mm.bing.net/th/id/R-C.8c7f8c7f8c7f8c7f8c7f8c7f8c7f8c7f?rik=R0rsmeM93txhcA&pid=ImgRaw&r=0" alt="张经" class="w-full h-full object-cover">
+                                </div>
+                                <div class="person-info">
+                                    <h3 class="person-name">张经</h3>
+                                    <p class="person-dynasty">明代 (1492-1555)</p>
+                                    <p class="person-desc">明代抗倭名将。官至兵部尚书兼右都御史，总督江南、江北、浙江、福建、山东、湖广诸军，领导了著名的王江泾大捷，为抗击倭寇做出了重要贡献。</p>
+                                    <button class="mt-4 bg-primary hover:bg-opacity-80 text-white px-4 py-2 rounded transition-colors" onclick="showPersonDetail('张经')">
+                                        查看详情
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- 叶向高 -->
+                            <div class="person-card" data-category="ming">
+                                <div class="person-img">
+                                    <img src="https://ts2.cn.mm.bing.net/th/id/R-C.8c7f8c7f8c7f8c7f8c7f8c7f8c7f8c7f?rik=R0rsmeM93txhcA&pid=ImgRaw&r=0" alt="叶向高" class="w-full h-full object-cover">
+                                </div>
+                                <div class="person-info">
+                                    <h3 class="person-name">叶向高</h3>
+                                    <p class="person-dynasty">明代 (1559-1627)</p>
+                                    <p class="person-desc">明代政治家、文学家。官至内阁首辅，两度入阁，辅佐神宗、光宗、熹宗三朝皇帝。他是福州的名人，为福州的文化和教育事业做出了重要贡献。</p>
+                                    <button class="mt-4 bg-primary hover:bg-opacity-80 text-white px-4 py-2 rounded transition-colors" onclick="showPersonDetail('叶向高')">
+                                        查看详情
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    personGrid.innerHTML = content;
+                }, 500);
+            });
+        });
+        
+        // 修复导航菜单链接
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            if (link.getAttribute('href') === '#') {
+                link.setAttribute('href', 'javascript:void(0);');
+            }
+        });
+        
+        // 修复顶部导航栏链接
+        document.querySelectorAll('header a').forEach(link => {
+            if (link.getAttribute('href') === '#') {
+                link.setAttribute('href', 'javascript:void(0);');
+            }
+        });
+        
+        // 滚动动画
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('section:not(.animated)');
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                if (elementTop < windowHeight * 0.8) {
+                    gsap.from(element, { y: 50, opacity: 0, duration: 1 });
+                    element.classList.add('animated');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', animateOnScroll);
+        animateOnScroll(); // 初始检查
+    </script>
+</body>
+</html>

@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>古建宗祠 - 芷溪</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- GSAP 动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Three.js 3D效果 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- 全景图插件 -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/EquirectangularReflectionMapping.js"></script>
+    <style>
+        /* 自定义样式 */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --color-primary: #C41E3A; /* 朱红 */
+            --color-secondary: #2D4356; /* 黛青 */
+            --color-tertiary: #F5F5DC; /* 米白 */
+            --color-accent: #DAA520; /* 金黄 */
+            --color-dark: #2F4F4F; /* 墨绿 */
+            --color-light: #F5F5F5; /* 浅灰 */
+        }
+        
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background-color: var(--color-tertiary);
+            color: var(--color-dark);
+        }
+        
+        .bg-primary { background-color: var(--color-primary); }
+        .bg-secondary { background-color: var(--color-secondary); }
+        .bg-tertiary { background-color: var(--color-tertiary); }
+        .bg-accent { background-color: var(--color-accent); }
+        .bg-dark { background-color: var(--color-dark); }
+        .bg-light { background-color: var(--color-light); }
+        
+        .text-primary { color: var(--color-primary); }
+        .text-secondary { color: var(--color-secondary); }
+        .text-tertiary { color: var(--color-tertiary); }
+        .text-accent { color: var(--color-accent); }
+        .text-dark { color: var(--color-dark); }
+        .text-light { color: var(--color-light); }
+        
+        .border-primary { border-color: var(--color-primary); }
+        .border-secondary { border-color: var(--color-secondary); }
+        .border-accent { border-color: var(--color-accent); }
+        
+        /* 导航菜单样式 */
+        .nav-menu {
+            background-color: var(--color-secondary);
+            color: white;
+            padding: 10px 0;
+        }
+        
+        .nav-menu ul {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .nav-menu li {
+            position: relative;
+        }
+        
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: block;
+            transition: background-color 0.3s ease;
+        }
+        
+        .nav-menu a:hover, .nav-menu a.active {
+            background-color: var(--color-primary);
+        }
+        
+        .nav-menu .submenu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: var(--color-secondary);
+            min-width: 200px;
+            display: none;
+            z-index: 100;
+        }
+        
+        .nav-menu li:hover .submenu {
+            display: block;
+        }
+        
+
+        
+        /* 建筑图鉴样式 */
+        .architecture-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        
+        .architecture-filter-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--color-secondary);
+            border-radius: 20px;
+            background-color: white;
+            color: var(--color-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .architecture-filter-btn:hover, .architecture-filter-btn.active {
+            background-color: var(--color-secondary);
+            color: white;
+        }
+        
+        .architecture-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .architecture-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .architecture-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .architecture-info {
+            padding: 15px;
+        }
+        
+        .architecture-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--color-secondary);
+        }
+        
+        .architecture-type {
+            font-size: 14px;
+            color: var(--color-primary);
+            margin-bottom: 10px;
+        }
+        
+        .architecture-desc {
+            font-size: 14px;
+            color: var(--color-dark);
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .architecture-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .architecture-btn {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .architecture-btn.view {
+            background-color: var(--color-secondary);
+            color: white;
+        }
+        
+        .architecture-btn.view:hover {
+            background-color: #1f3442;
+        }
+        
+        .architecture-btn.download {
+            background-color: white;
+            color: var(--color-primary);
+            border: 1px solid var(--color-primary);
+        }
+        
+        .architecture-btn.download:hover {
+            background-color: var(--color-primary);
+            color: white;
+        }
+        
+        /* 窗棂装饰元素 */
+        .window-lattice {
+            position: relative;
+        }
+        
+        .window-lattice::before,
+        .window-lattice::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 20px;
+            background-image: url('https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/9dc38b0d8cbb4261a00faa4e097879cc~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260212123004B7B3FD7F2383C835BCE9&rrcfp=f06b921b&x-expires=1773462667&x-signature=RqfOErcI9e0OCTWadDi%2BFTKM8%2FM%3D');
+            background-repeat: repeat-x;
+            background-size: contain;
+        }
+        
+        .window-lattice::before {
+            top: 0;
+            transform: rotate(180deg);
+        }
+        
+        .window-lattice::after {
+            bottom: 0;
+        }
+        
+        /* 风火墙装饰元素 */
+        .fire-wall {
+            position: relative;
+            padding-top: 50px;
+        }
+        
+        .fire-wall::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 50px;
+            background-image: url('https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/abc5c4852c8242dd82a1e275e9040820~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=20260212123004B7B3FD7F2383C835BCE9&rrcfp=f06b921b&x-expires=1773462667&x-signature=KGR3aUp44rGnJOC1MdjLhMKfLJE%3D');
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .nav-menu ul {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .nav-menu .submenu {
+                position: static;
+                display: none;
+            }
+            
+            .nav-menu li:hover .submenu {
+                display: block;
+            }
+            
+            #panorama-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="bg-secondary text-white shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center">
+                <h1 class="text-2xl font-bold">芷溪</h1>
+            </div>
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="index.html" class="hover:text-accent transition-colors">首页</a>
+            </div>
+            <button class="md:hidden text-2xl" id="mobileMenuButton">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <!-- 移动端菜单 -->
+        <div class="md:hidden hidden bg-secondary" id="mobileMenu">
+                <div class="container mx-auto px-4 py-2 flex flex-col space-y-2">
+                    <a href="index.html" class="block py-2 hover:text-accent transition-colors">首页</a>
+                    <a href="history.html" class="block py-2 hover:text-accent transition-colors">历史文化</a>
+                    <a href="architecture.html" class="block py-2 hover:text-accent transition-colors">古建宗祠</a>
+                    <a href="intangible.html" class="block py-2 hover:text-accent transition-colors">非遗传承</a>
+                    <a href="tourism.html" class="block py-2 hover:text-accent transition-colors">旅游服务</a>
+                    <a href="#about" class="block py-2 hover:text-accent transition-colors">关于我们</a>
+                    <a href="#contact" class="block py-2 hover:text-accent transition-colors">联系方式</a>
+                    <button class="bg-primary hover:bg-opacity-80 text-white px-4 py-2 rounded-md transition-colors w-full">
+                        <i class="fas fa-ticket-alt mr-1"></i> 门票预订
+                    </button>
+                </div>
+            </div>
+    </header>
+
+    <!-- 五大板块导航 -->
+    <nav class="nav-menu sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4">
+            <ul>
+                <li>
+                    <a href="index.html"><i class="fas fa-home mr-1"></i> 首页</a>
+                </li>
+                <li>
+                    <a href="history.html"><i class="fas fa-history mr-1"></i> 历史脉络</a>
+                    <ul class="submenu">
+                        <li><a href="history.html#timeline">朝代时间轴</a></li>
+                        <li><a href="history.html#person-database">名人数据库</a></li>
+                        <li><a href="history.html#family-culture">家风文化专栏</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="architecture.html#architecture-gallery" class="active"><i class="fas fa-building mr-1"></i> 古建宗祠</a>
+                    <ul class="submenu">
+                        <li><a href="#panorama">3D全景漫游</a></li>
+                        <li><a href="#architecture-gallery">宗祠图鉴</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="intangible.html"><i class="fas fa-mask mr-1"></i> 非遗传承</a>
+                    <ul class="submenu">
+                        <li><a href="#">非遗项目库</a></li>
+                        <li><a href="#">视频专区</a></li>
+                        <li><a href="#">文创推荐</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="tourism.html"><i class="fas fa-map-marked-alt mr-1"></i> 旅游服务</a>
+                    <ul class="submenu">
+                        <li><a href="tourism.html#map-navigation">地图导航</a></li>
+                        <li><a href="tourism.html#popular-checkpoints">热门打卡点</a></li>
+                        <li><a href="tourism.html#food-recommendations">美食推荐</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 页面标题 -->
+    <section class="bg-secondary text-white py-12">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl font-bold mb-4">古建宗祠</h1>
+            <p class="text-xl">领略芷溪客家宗祠建筑之美，探索传统客家建筑文化</p>
+        </div>
+    </section>
+
+    <!-- 3D全景漫游 -->
+    <section id="panorama" class="py-12 window-lattice">
+        <div class="container mx-auto px-4 py-8">
+            <h2 class="text-2xl font-bold mb-6 text-center text-secondary fire-wall">3D全景漫游</h2>
+            <p class="text-center mb-8 text-gray-700">身临其境体验芷溪客家宗祠建筑之美</p>
+            
+            <div class="bg-white p-4 rounded-lg shadow-lg">
+                <!-- 芷溪村全景图嵌入 - 延迟加载 -->
+                <div id="panorama-container" class="w-full h-[600px] bg-gray-100 flex items-center justify-center cursor-pointer" onclick="loadPanorama()">
+                    <div class="text-center">
+                        <i class="fas fa-vr-cardboard text-5xl text-gray-400 mb-4"></i>
+                        <p class="text-gray-600">点击加载3D全景漫游</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 bg-light p-4 rounded-lg">
+                <h3 class="text-xl font-bold mb-2 text-secondary">漫游提示</h3>
+                <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                    <li>鼠标拖动可旋转视角，滚轮可缩放画面</li>
+                    <li>点击热点可查看详细信息</li>
+                    <li>可使用底部导航栏切换不同地点</li>
+                    <li>支持全屏模式，获得更佳体验</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 宗祠图鉴 -->
+    <section id="architecture-gallery" class="py-12 bg-light">
+        <div class="container mx-auto px-4">
+            <h2 class="text-2xl font-bold mb-6 text-center text-secondary fire-wall">宗祠图鉴</h2>
+            <p class="text-center mb-8 text-gray-700">分类展示芷溪客家宗祠的建筑特色与艺术价值</p>
+            
+            <div class="architecture-filter mb-8">
+                <button class="architecture-filter-btn active" data-filter="all">全部</button>
+                <button class="architecture-filter-btn" data-filter="ancestral">宗祠建筑</button>
+                <button class="architecture-filter-btn" data-filter="residence">民居建筑</button>
+                <button class="architecture-filter-btn" data-filter="decoration">装饰元素</button>
+                <button class="architecture-filter-btn" data-filter="structure">结构构件</button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 黄氏家庙 -->
+                <div class="architecture-card" data-category="ancestral">
+                    <img data-src="https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260312_1773329336.png" alt="黄氏家庙" class="architecture-img opacity-0 transition-opacity duration-500">
+                    <div class="architecture-info">
+                        <h3 class="architecture-name">黄氏家庙</h3>
+                        <p class="architecture-type">宗祠建筑</p>
+                        <p class="architecture-desc">芷溪最大的宗祠之一，建于清代，是黄氏家族的重要祭祀场所。建筑规模宏大，工艺精湛，体现了客家宗祠建筑的典型特征。</p>
+                        <div class="architecture-actions">
+                            <button class="architecture-btn view" onclick="viewArchitectureDetail('huangfamily')">
+                                <i class="fas fa-eye mr-1"></i> 查看详情
+                            </button>
+                            <button class="architecture-btn download" onclick="downloadImage('https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260312_1773329336.png')">
+                                <i class="fas fa-download mr-1"></i> 下载
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 杨氏宗祠 -->
+                <div class="architecture-card" data-category="ancestral">
+                    <img data-src="https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260312_1773329483.jpg" alt="杨氏宗祠" class="architecture-img opacity-0 transition-opacity duration-500">
+                    <div class="architecture-info">
+                        <h3 class="architecture-name">杨氏宗祠</h3>
+                        <p class="architecture-type">宗祠建筑</p>
+                        <p class="architecture-desc">芷溪重要的宗祠之一，建于清代，是杨氏家族的祭祀场所。建筑风格独特，装饰精美，展现了客家宗祠建筑的艺术魅力。</p>
+                        <div class="architecture-actions">
+                            <button class="architecture-btn view" onclick="viewArchitectureDetail('yangfamily')">
+                                <i class="fas fa-eye mr-1"></i> 查看详情
+                            </button>
+                            <button class="architecture-btn download" onclick="downloadImage('https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260312_1773329483.jpg')">
+                                <i class="fas fa-download mr-1"></i> 下载
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 芷溪古街 -->
+                <div class="architecture-card" data-category="residence">
+                    <img data-src="https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260312_1773329586.jpg" alt="芷溪古街" class="architecture-img opacity-0 transition-opacity duration-500">
+                    <div class="architecture-info">
+                        <h3 class="architecture-name">芷溪古街</h3>
+                        <p class="architecture-type">民居建筑</p>
+                        <p class="architecture-desc">芷溪古街是古村的核心区域，保存着大量明清时期的客家民居建筑。街道两旁店铺林立，古建筑鳞次栉比，展现了古村的历史风貌。</p>
+                        <div class="architecture-actions">
+                            <button class="architecture-btn view" onclick="viewArchitectureDetail('ancientstreet')">
+                                <i class="fas fa-eye mr-1"></i> 查看详情
+                            </button>
+                            <button class="architecture-btn download" onclick="downloadImage('https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260312_1773329586.jpg')">
+                                <i class="fas fa-download mr-1"></i> 下载
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-center gap-8 w-full max-w-2xl mx-auto">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">芷溪</h3>
+                    <p class="mb-4">千年客家古村，中国历史文化名村</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-white hover:text-accent transition-colors">
+                            <i class="fab fa-weixin text-2xl"></i>
+                        </a>
+                        <a href="#" class="text-white hover:text-accent transition-colors">
+                            <i class="fab fa-weibo text-2xl"></i>
+                        </a>
+                        <a href="#" class="text-white hover:text-accent transition-colors">
+                            <i class="fab fa-tiktok text-2xl"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="hover:text-accent transition-colors">首页</a></li>
+                        <li><a href="history.html" class="hover:text-accent transition-colors">历史脉络</a></li>
+                        <li><a href="architecture.html" class="hover:text-accent transition-colors">古建探秘</a></li>
+                        <li><a href="intangible.html" class="hover:text-accent transition-colors">非遗传承</a></li>
+                        <li><a href="tourism.html" class="hover:text-accent transition-colors">旅游服务</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 建筑详情模态框 -->
+    <div id="architectureModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-2xl font-bold text-secondary" id="modalTitle">建筑详情</h3>
+                    <button class="text-gray-500 hover:text-gray-700 text-2xl" onclick="closeArchitectureDetail()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="modalContent">
+                    <!-- 动态内容将在这里加载 -->
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button class="bg-primary hover:bg-opacity-80 text-white px-6 py-2 rounded transition-colors" onclick="closeArchitectureDetail()">
+                        关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 移动端菜单
+        document.getElementById('mobileMenuButton').addEventListener('click', function() {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        });
+
+        // 3D全景漫游加载函数
+        function loadPanorama() {
+            const container = document.getElementById('panorama-container');
+            container.innerHTML = '<iframe src="https://360.dmctv.cn/35082510601/360VR/index.html" width="100%" height="600px" frameborder="0" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>';
+            container.style.cursor = 'default';
+        }
+
+        // 图片延迟加载
+        function lazyLoadImages() {
+            const images = document.querySelectorAll('img[data-src]');
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.remove('opacity-0');
+                        img.classList.add('opacity-100');
+                        observer.unobserve(img);
+                    }
+                });
+            });
+            images.forEach(img => imageObserver.observe(img));
+        }
+
+        window.addEventListener('load', lazyLoadImages);
+
+        
+        // 建筑图鉴筛选
+        const filterBtns = document.querySelectorAll('.architecture-filter-btn');
+        const architectureCards = document.querySelectorAll('.architecture-card');
+        
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 移除所有按钮的active类
+                filterBtns.forEach(b => b.classList.remove('active'));
+                // 给当前按钮添加active类
+                this.classList.add('active');
+                
+                const filter = this.getAttribute('data-filter');
+                
+                architectureCards.forEach(card => {
+                    if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+        
+        // 建筑详情模态框
+        function viewArchitectureDetail(id) {
+            const modal = document.getElementById('architectureModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            
+            // 根据建筑ID加载不同内容
+            let title = '';
+            let content = '';
+            
+            if (id === 'huangfamily') {
+                title = '黄氏家庙';
+                content = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <img src="https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260312_1773329336.png" alt="黄氏家庙" class="w-full h-auto rounded-lg mb-4">
+                            <div class="bg-light p-4 rounded-lg">
+                                <h4 class="font-bold mb-2">基本信息</h4>
+                                <ul class="space-y-2">
+                                    <li><span class="font-semibold">建筑类型:</span> 宗祠建筑</li>
+                                    <li><span class="font-semibold">建筑年代:</span> 清代</li>
+                                    <li><span class="font-semibold">保护级别:</span> 县级文物保护单位</li>
+                                    <li><span class="font-semibold">地理位置:</span> 芷溪村中心</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xl mb-4">建筑特点</h4>
+                            <p class="mb-4">黄氏家庙是芷溪最大的宗祠之一，建于清代，是黄氏家族的重要祭祀场所。建筑规模宏大，工艺精湛，体现了客家宗祠建筑的典型特征。</p>
+                            <p class="mb-4">建筑特点包括：</p>
+                            <ul class="list-disc pl-5 mb-4 space-y-1">
+                                <li>三进院落布局，气势恢宏</li>
+                                <li>精美的木雕、砖雕、石雕装饰</li>
+                                <li>飞檐翘角，造型优美</li>
+                                <li>风火墙高耸，兼具防火、防盗功能</li>
+                                <li>内部空间宽敞，可容纳数百人祭祀活动</li>
+                            </ul>
+                            <h4 class="font-bold text-xl mb-4 mt-6">历史意义</h4>
+                            <p>黄氏家庙是芷溪黄氏家族的精神象征，见证了黄氏家族的发展历史。每年清明、冬至等重要节日，黄氏子孙都会齐聚于此，举行隆重的祭祀活动，传承家族文化和传统礼仪。这座建筑不仅是芷溪客家建筑的典范，也是研究客家宗族文化的重要实物资料。</p>
+                        </div>
+                    </div>
+                `;
+            } else if (id === 'yangfamily') {
+                title = '杨氏宗祠';
+                content = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <img src="https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260312_1773329483.jpg" alt="杨氏宗祠" class="w-full h-auto rounded-lg mb-4">
+                            <div class="bg-light p-4 rounded-lg">
+                                <h4 class="font-bold mb-2">基本信息</h4>
+                                <ul class="space-y-2">
+                                    <li><span class="font-semibold">建筑类型:</span> 宗祠建筑</li>
+                                    <li><span class="font-semibold">建筑年代:</span> 清代</li>
+                                    <li><span class="font-semibold">保护级别:</span> 县级文物保护单位</li>
+                                    <li><span class="font-semibold">地理位置:</span> 芷溪村东部</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xl mb-4">建筑特点</h4>
+                            <p class="mb-4">杨氏宗祠是芷溪重要的宗祠之一，建于清代，是杨氏家族的祭祀场所。建筑风格独特，装饰精美，展现了客家宗祠建筑的艺术魅力。</p>
+                            <p class="mb-4">建筑特点包括：</p>
+                            <ul class="list-disc pl-5 mb-4 space-y-1">
+                                <li>二进院落布局，结构紧凑</li>
+                                <li>门楼高大雄伟，雕刻精美</li>
+                                <li>厅堂宽敞明亮，采光良好</li>
+                                <li>木雕工艺精湛，题材丰富</li>
+                                <li>整体建筑保存完好，体现了清代客家建筑的特色</li>
+                            </ul>
+                            <h4 class="font-bold text-xl mb-4 mt-6">历史意义</h4>
+                            <p>杨氏宗祠是芷溪杨氏家族的重要象征，记录了杨氏家族的发展历程。宗祠内保存有丰富的历史文物和族谱资料，是研究芷溪历史文化的重要资源。每年杨氏家族都会在此举行祭祀活动，传承家族文化和传统美德。</p>
+                        </div>
+                    </div>
+                `;
+            } else if (id === 'ancientstreet') {
+                title = '芷溪古街';
+                content = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <img src="https://gitee.com/wddaddds/qingzhu-picture-warehouse/raw/master/pic/upgit_20260312_1773329586.jpg" alt="芷溪古街" class="w-full h-auto rounded-lg mb-4">
+                            <div class="bg-light p-4 rounded-lg">
+                                <h4 class="font-bold mb-2">基本信息</h4>
+                                <ul class="space-y-2">
+                                    <li><span class="font-semibold">建筑类型:</span> 民居建筑</li>
+                                    <li><span class="font-semibold">形成年代:</span> 明清时期</li>
+                                    <li><span class="font-semibold">长度:</span> 约1公里</li>
+                                    <li><span class="font-semibold">地理位置:</span> 芷溪村中心</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xl mb-4">建筑特点</h4>
+                            <p class="mb-4">芷溪古街是古村的核心区域，保存着大量明清时期的客家民居建筑。街道两旁店铺林立，古建筑鳞次栉比，展现了古村的历史风貌。</p>
+                            <p class="mb-4">建筑特点包括：</p>
+                            <ul class="list-disc pl-5 mb-4 space-y-1">
+                                <li>街道用鹅卵石铺成，古色古香</li>
+                                <li>两旁建筑多为明清时期的客家民居</li>
+                                <li>建筑风格统一，风火墙、马头墙错落有致</li>
+                                <li>店铺、民居、宗祠交错分布</li>
+                                <li>整体布局合理，体现了古代村落规划的智慧</li>
+                            </ul>
+                            <h4 class="font-bold text-xl mb-4 mt-6">历史意义</h4>
+                            <p>芷溪古街是芷溪古村的重要组成部分，见证了古村的发展历史。街道上保存的古建筑和传统店铺，为研究明清时期客家村落的商业活动和社会生活提供了重要实物资料。古街也是游客体验芷溪传统文化的重要场所，展现了客家古村的独特魅力。</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                title = '建筑详情';
+                content = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-info-circle text-5xl text-gray-400 mb-4"></i>
+                        <p class="text-gray-600">该建筑的详细信息正在整理中，敬请期待！</p>
+                    </div>
+                `;
+            }
+            
+            modalTitle.textContent = title;
+            modalContent.innerHTML = content;
+            modal.classList.remove('hidden');
+        }
+        
+        function closeArchitectureDetail() {
+            document.getElementById('architectureModal').classList.add('hidden');
+        }
+        
+        // 点击模态框外部关闭
+        document.getElementById('architectureModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeArchitectureDetail();
+            }
+        });
+        
+        // 下载图片
+        function downloadImage(url) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = url.split('/').pop().split('?')[0];
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        // 滚动动画
+        function animateOnScroll() {
+            const elements = document.querySelectorAll('section:not(.animated)');
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                if (elementTop < windowHeight * 0.8) {
+                    gsap.from(element, { y: 50, opacity: 0, duration: 1 });
+                    element.classList.add('animated');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', animateOnScroll);
+        animateOnScroll(); // 初始检查
+    </script>
+</body>
+</html>
